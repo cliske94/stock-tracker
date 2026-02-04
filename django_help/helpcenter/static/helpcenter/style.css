@@ -1,0 +1,5 @@
+body { font-family: sans-serif; background: #111; color: #ddd; padding: 20px; }
+#results { list-style: none; padding: 0; }
+.result { margin: 6px 0; }
+#content { margin-top: 20px; background: #222; padding: 12px; border-radius: 6px; }
+input#search { padding: 8px; width: 60%; margin-bottom: 10px; }

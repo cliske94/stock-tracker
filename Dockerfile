@@ -66,3 +66,24 @@ COPY --from=builder /src/spring_hello_world/build/libs/*.jar /app/app.jar
 ENV JAVA_OPTS="-Xms128m -Xmx512m"
 EXPOSE 8080
 ENTRYPOINT ["sh","-c","exec java $JAVA_OPTS -Dspring.config.location=/app/data/ -jar /app/app.jar"]
+
+
+### Django help site runtime
+FROM python:3.12-slim AS django-runtime
+ENV PYTHONUNBUFFERED=1
+WORKDIR /app
+# Install minimal build deps for some Python packages (kept small)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy only requirements first for Docker layer caching
+COPY ./django_help/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Copy django help site sources
+COPY ./django_help /app
+
+EXPOSE 8001
+# Default for development: run migrations then start dev server
+CMD ["sh","-c","python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8001"]

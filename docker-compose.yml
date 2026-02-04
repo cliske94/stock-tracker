@@ -21,3 +21,17 @@ services:
     volumes:
       - ./spring_hello_world/data:/app/data
     restart: unless-stopped
+
+  help:
+    build:
+      context: .
+      target: django-runtime
+    image: hello-help-site:latest
+    container_name: help_site
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./django_help:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped

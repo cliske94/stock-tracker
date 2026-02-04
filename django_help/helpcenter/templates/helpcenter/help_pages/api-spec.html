@@ -1,0 +1,12 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>API Specification</h2>
+<p>This document lists the main endpoints exposed by the backend:</p>
+<ul>
+  <li><strong>POST /auth/register</strong> — body: { "username": "u", "password": "p" } returns { "token": "..." }</li>
+  <li><strong>POST /auth/login</strong> — body: { "username": "u", "password": "p" } returns { "token": "..." }</li>
+  <li><strong>GET /search?ticker=&lt;sym&gt;</strong> — requires Authorization: Bearer &lt;token&gt; — returns stock JSON</li>
+  <li><strong>GET /stock?ticker=&lt;sym&gt;</strong> — same as search but includes HATEOAS links</li>
+</ul>
+<p>Use the example curl commands in the top-level README for quick testing.</p>
+{% endblock %}

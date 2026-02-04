@@ -1,0 +1,11 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Using the Rust GUI</h2>
+<p>Build and run the Rust SDL2 GUI:</p>
+<pre>
+cd rust_hello_world
+cargo build --release
+BACKEND_URL=http://localhost:8080 ./target/release/rust_hello_world
+</pre>
+<p>Ensure SDL2 and SDL2-ttf system packages are installed. The GUI persists token to <code>token.txt</code>.</p>
+{% endblock %}
