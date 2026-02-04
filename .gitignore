@@ -1,0 +1,6 @@
+.env
+build/
+*.o
+*.exe
+**/CMakeFiles/
+**/cmake_install.cmake

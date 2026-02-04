@@ -1,0 +1,5 @@
+.env
+.token
+target/
+/tmp/rust_hello_world_response.json
+Cargo.lock
