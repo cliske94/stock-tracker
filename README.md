@@ -35,6 +35,18 @@ g++ HelloWorld.cpp -o hello
 
 - **Integration**: Set `BACKEND_URL` for frontends (examples above use `http://localhost:8080`). Example curl test for register:
 
+- **WebSockets UI (Python)**: A simple Tkinter-based GUI is available in `python_watchlist_gui/` which connects to the backend plain WebSocket endpoint and the REST API.
+		- **Run:**
+			```bash
+			cd python_watchlist_gui
+			python3 -m venv .venv
+			.venv/bin/pip install -r requirements.txt
+			.venv/bin/python main.py
+			```
+		- **Notes:** GUI connects to `ws://localhost:8080/ws-plain` for live price updates and uses the REST `POST /watchlist` and `POST /watchlist/remove` endpoints (prefers removal by `id`). See the Help Center page "WebSockets UI (Python)" for more details.
+
+**Integration**: Set `BACKEND_URL` for frontends (examples above use `http://localhost:8080`). Example curl test for register:
+
 ```bash
 curl -i -X POST http://localhost:8080/auth/register -H 'Content-Type: application/json' -d '{"username":"test","password":"pass"}'
 ```

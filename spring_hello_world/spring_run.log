@@ -1,0 +1,59 @@
+nohup: ignoring input
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.4/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Exception in thread "DisconnectableInputStream source reader" org.gradle.api.UncheckedIOException: java.io.IOException: Bad file descriptor
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:62)
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:41)
+	at org.gradle.util.internal.DisconnectableInputStream$1.run(DisconnectableInputStream.java:127)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: Bad file descriptor
+	at java.base/java.io.FileInputStream.readBytes(Native Method)
+	at java.base/java.io.FileInputStream.read(FileInputStream.java:276)
+	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:282)
+	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:343)
+	at org.gradle.util.internal.DisconnectableInputStream$1.run(DisconnectableInputStream.java:98)
+	... 1 more
+Daemon will be stopped at the end of the build 
+Path for java installation '/home/cody/.jdks/conf' (IntelliJ IDEA) does not contain a java executable
+Path for java installation '/usr/lib/jvm/openjdk-17' (Common Linux Locations) does not contain a java executable
+Path for java installation '/home/cody/.jdks/bin' (IntelliJ IDEA) does not contain a java executable
+Path for java installation '/home/cody/.jdks/lib' (IntelliJ IDEA) does not contain a java executable
+Path for java installation '/home/cody/.jdks/include' (IntelliJ IDEA) does not contain a java executable
+Path for java installation '/home/cody/.jdks/legal' (IntelliJ IDEA) does not contain a java executable
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+
+> Task :run
+[2m2026-02-03 23:44:38.448[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mcom.example.HelloApplication            [0;39m [2m:[0;39m Starting HelloApplication using Java 24.0.2 on cody-A520I-AC with PID 114326 (/home/cody/Projects/spring_hello_world/build/classes/java/main started by cody in /home/cody/Projects/spring_hello_world)
+[2m2026-02-03 23:44:38.451[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mcom.example.HelloApplication            [0;39m [2m:[0;39m No active profile set, falling back to 1 default profile: "default"
+[2m2026-02-03 23:44:38.785[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[2m2026-02-03 23:44:38.818[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Finished Spring Data repository scanning in 27 ms. Found 3 JPA repository interfaces.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.apache.tomcat.jni.Library in an unnamed module (file:/home/cody/.gradle/caches/modules-2/files-2.1/org.apache.tomcat.embed/tomcat-embed-core/9.0.76/1672ec66d44c68829416c946ab034cb1a92a5629/tomcat-embed-core-9.0.76.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+[2m2026-02-03 23:44:39.163[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat initialized with port(s): 8080 (http)
+[2m2026-02-03 23:44:39.169[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.apache.catalina.core.StandardService  [0;39m [2m:[0;39m Starting service [Tomcat]
+[2m2026-02-03 23:44:39.169[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36morg.apache.catalina.core.StandardEngine [0;39m [2m:[0;39m Starting Servlet engine: [Apache Tomcat/9.0.76]
+[2m2026-02-03 23:44:39.223[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring embedded WebApplicationContext
+[2m2026-02-03 23:44:39.224[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mw.s.c.ServletWebServerApplicationContext[0;39m [2m:[0;39m Root WebApplicationContext: initialization completed in 741 ms
+[2m2026-02-03 23:44:39.324[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.hibernate.jpa.internal.util.LogHelper [0;39m [2m:[0;39m HHH000204: Processing PersistenceUnitInfo [name: default]
+[2m2026-02-03 23:44:39.345[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36morg.hibernate.Version                   [0;39m [2m:[0;39m HHH000412: Hibernate ORM core version 5.6.15.Final
+[2m2026-02-03 23:44:39.427[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.hibernate.annotations.common.Version  [0;39m [2m:[0;39m HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+[2m2026-02-03 23:44:39.480[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Starting...
+[2m2026-02-03 23:44:39.533[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m:[0;39m HikariPool-1 - Start completed.
+[2m2026-02-03 23:44:39.541[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36morg.hibernate.dialect.Dialect           [0;39m [2m:[0;39m HHH000400: Using dialect: com.example.config.SQLiteDialect
+[2m2026-02-03 23:44:39.802[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.h.e.t.j.p.i.JtaPlatformInitiator      [0;39m [2m:[0;39m HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+[2m2026-02-03 23:44:39.806[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m:[0;39m Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2m2026-02-03 23:44:40.228[0;39m [33m WARN[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mJpaBaseConfiguration$JpaWebConfiguration[0;39m [2m:[0;39m spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[2m2026-02-03 23:44:40.459[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat started on port(s): 8080 (http) with context path ''
+[2m2026-02-03 23:44:40.460[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m:[0;39m Starting...
+[2m2026-02-03 23:44:40.460[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m:[0;39m BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@3ba8ef4e]]
+[2m2026-02-03 23:44:40.460[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m:[0;39m Started.
+[2m2026-02-03 23:44:40.464[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36ms.a.ScheduledAnnotationBeanPostProcessor[0;39m [2m:[0;39m More than one TaskScheduler bean exists within the context, and none is named 'taskScheduler'. Mark one of them as primary or name it 'taskScheduler' (possibly as an alias); or implement the SchedulingConfigurer interface and call ScheduledTaskRegistrar#setScheduler explicitly within the configureTasks() callback: [defaultSockJsTaskScheduler, messageBrokerTaskScheduler]
+[2m2026-02-03 23:44:40.468[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[           main][0;39m [36mcom.example.HelloApplication            [0;39m [2m:[0;39m Started HelloApplication in 2.241 seconds (JVM running for 2.418)
+[2m2026-02-03 23:45:03.532[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[nio-8080-exec-1][0;39m [36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring DispatcherServlet 'dispatcherServlet'
+[2m2026-02-03 23:45:03.533[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[nio-8080-exec-1][0;39m [36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Initializing Servlet 'dispatcherServlet'
+[2m2026-02-03 23:45:03.534[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[nio-8080-exec-1][0;39m [36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Completed initialization in 1 ms
+[2m2026-02-03 23:45:40.216[0;39m [32m INFO[0;39m [35m114326[0;39m [2m---[0;39m [2m[MessageBroker-1][0;39m [36mo.s.w.s.c.WebSocketMessageBrokerStats   [0;39m [2m:[0;39m WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]

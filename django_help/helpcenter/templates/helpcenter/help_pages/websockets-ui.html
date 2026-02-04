@@ -1,0 +1,38 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+
+{% block content %}
+<h1>WebSockets UI (Python)</h1>
+<p>This page documents the simple Python Tkinter-based WebSockets GUI included in the repository at <strong>python_watchlist_gui/</strong>.</p>
+
+<h2>Overview</h2>
+<ul>
+  <li>The GUI connects to the backend plain WebSocket endpoint at <code>ws://localhost:8080/ws-plain</code> to receive live price updates.</li>
+  <li>It uses the REST API at <code>http://localhost:8080</code> for authentication and watchlist management.</li>
+  <li>Authentication: use the <code>/auth/register</code> and <code>/auth/login</code> endpoints which return a token used in the <code>Authorization: Bearer &lt;token&gt;</code> header.</li>
+</ul>
+
+<h2>Running the GUI</h2>
+<p>Start the backend (Spring Boot) on port 8080, then from the project root:</p>
+<pre><code>cd python_watchlist_gui
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python main.py
+</code></pre>
+
+<h2>UI Features</h2>
+<ul>
+  <li>Login / Register form — token is persisted locally to <code>token.txt</code>.</li>
+  <li>Table view of watchlist entries with columns: <em>ID</em>, <em>Ticker</em>, <em>Price</em>, <em>Updated</em>.</li>
+  <li>Inline <strong>Remove</strong> action — the GUI prefers to remove by entry <em>ID</em> (safe) and falls back to ticker removal if no ID is present.</li>
+  <li>Add a ticker using the <strong>Add</strong> button (calls <code>POST /watchlist?ticker=</code>).</li>
+  <li>Live updates appear as rows are updated via WebSocket messages.</li>
+</ul>
+
+<h2>Notes & Troubleshooting</h2>
+<ul>
+  <li>If remove operations fail, check the backend logs for transaction errors; the GUI uses a POST fallback endpoint <code>/watchlist/remove</code> which expects either <code>id</code> or <code>ticker</code> as parameters.</li>
+  <li>Ensure the backend is reachable at <code>http://localhost:8080</code> and no firewall blocks WebSocket connections.</li>
+  <li>See <a href="/help/websockets-ui/">Help Center</a> for more information.</li>
+</ul>
+
+{% endblock %}

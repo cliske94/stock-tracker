@@ -1,0 +1,32 @@
+name: Python GUI tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install system deps
+        run: sudo apt-get update && sudo apt-get install -y xvfb tk
+
+      - name: Create venv and install deps
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/pip install -r python_watchlist_gui/requirements.txt
+
+      - name: Run tests under Xvfb
+        run: |
+          xvfb-run -s "-screen 0 1280x720x24" .venv/bin/pytest -q python_watchlist_gui/tests

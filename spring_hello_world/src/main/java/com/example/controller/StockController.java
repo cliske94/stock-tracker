@@ -8,6 +8,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -68,6 +69,40 @@ public class StockController {
         CollectionModel<EntityModel<WatchlistEntry>> coll = CollectionModel.of(models);
         coll.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(StockController.class).getWatchlist(auth)).withSelfRel());
         return ResponseEntity.ok(coll);
+    }
+
+    @DeleteMapping("/watchlist/{id}")
+    public ResponseEntity<?> deleteFromWatchlistById(@PathVariable("id") Long id, @RequestHeader(value = "Authorization", required = false) String auth) {
+        if (!authorized(auth)) return ResponseEntity.status(401).body("unauthorized");
+        if (!watchRepo.existsById(id)) return ResponseEntity.notFound().build();
+        watchRepo.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/watchlist")
+    public ResponseEntity<?> deleteFromWatchlistByTicker(@RequestParam(name = "ticker") String ticker, @RequestHeader(value = "Authorization", required = false) String auth) {
+        if (!authorized(auth)) return ResponseEntity.status(401).body("unauthorized");
+        if (ticker == null || ticker.isBlank()) return ResponseEntity.badRequest().body("ticker is required");
+        watchRepo.deleteByTicker(ticker.toUpperCase());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/watchlist/remove")
+    @Transactional
+    public ResponseEntity<?> removeFromWatchlist(@RequestParam(name = "id", required = false) Long id,
+                                                 @RequestParam(name = "ticker", required = false) String ticker,
+                                                 @RequestHeader(value = "Authorization", required = false) String auth) {
+        if (!authorized(auth)) return ResponseEntity.status(401).body("unauthorized");
+        if (id != null) {
+            if (!watchRepo.existsById(id)) return ResponseEntity.notFound().build();
+            watchRepo.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        if (ticker != null && !ticker.isBlank()) {
+            watchRepo.deleteByTicker(ticker.toUpperCase());
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().body("id or ticker required");
     }
 
     @GetMapping("/search")
