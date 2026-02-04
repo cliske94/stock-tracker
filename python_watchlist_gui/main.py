@@ -5,6 +5,7 @@ import time
 import websocket
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import requests
 
 WS_URL = "ws://localhost:8080/ws-plain"
@@ -49,8 +50,14 @@ class WatchlistGUI:
         ttk.Label(ctrl, text="Pass:").pack(side=tk.LEFT)
         self.pass_var = tk.StringVar()
         ttk.Entry(ctrl, textvariable=self.pass_var, width=14, show='*').pack(side=tk.LEFT, padx=4)
-        ttk.Button(ctrl, text="Login", command=self.login).pack(side=tk.LEFT, padx=4)
-        ttk.Button(ctrl, text="Register", command=self.register).pack(side=tk.LEFT, padx=4)
+        # auth buttons
+        self.login_btn = ttk.Button(ctrl, text="Login", command=self.login)
+        self.login_btn.pack(side=tk.LEFT, padx=4)
+        self.register_btn = ttk.Button(ctrl, text="Register", command=self.register)
+        self.register_btn.pack(side=tk.LEFT, padx=4)
+        self.logout_btn = ttk.Button(ctrl, text="Logout", command=self.logout)
+        # start hidden
+        self.logout_btn.pack_forget()
 
         ttk.Label(ctrl, text="Auth token:").pack(side=tk.LEFT, padx=8)
         self.token_var = tk.StringVar()
@@ -82,6 +89,39 @@ class WatchlistGUI:
         self.tree.bind("<Button-1>", self.on_tree_click)
 
         root.after(200, self.poll_queue)
+        # load token if present and update UI
+        try:
+            with open('token.txt', 'r') as f:
+                tok = f.read().strip()
+                if tok:
+                    self.token_var.set(tok)
+        except Exception:
+            pass
+        self.update_auth_ui()
+
+    def update_auth_ui(self):
+        # if token present, show logout and hide login/register
+        if self.token_var.get().strip():
+            try:
+                self.login_btn.pack_forget()
+                self.register_btn.pack_forget()
+            except Exception:
+                pass
+            try:
+                self.logout_btn.pack(side=tk.LEFT, padx=4)
+            except Exception:
+                pass
+        else:
+            try:
+                self.logout_btn.pack_forget()
+            except Exception:
+                pass
+            # ensure login/register are visible
+            try:
+                self.login_btn.pack(side=tk.LEFT, padx=4)
+                self.register_btn.pack(side=tk.LEFT, padx=4)
+            except Exception:
+                pass
 
     def add_ticker(self):
         ticker = self.ticker_var.get().strip()
@@ -145,6 +185,7 @@ class WatchlistGUI:
                 token = r.json().get("token")
                 if token:
                     self.set_token(token)
+                    self.update_auth_ui()
                     print("Registered and logged in")
                 else:
                     print("Register succeeded but no token returned")
@@ -165,6 +206,7 @@ class WatchlistGUI:
                 token = r.json().get("token")
                 if token:
                     self.set_token(token)
+                    self.update_auth_ui()
                     print("Logged in")
                 else:
                     print("Login succeeded but no token returned")
@@ -180,6 +222,27 @@ class WatchlistGUI:
                 f.write(token)
         except Exception:
             pass
+
+    def logout(self):
+        # confirm logout
+        if not messagebox.askyesno("Logout", "Are you sure you want to logout?"):
+            return
+        token = self.token_var.get().strip()
+        if token:
+            try:
+                headers = {"Authorization": f"Bearer {token}"}
+                requests.post(f"{API_BASE}/auth/logout", headers=headers, timeout=5)
+            except Exception:
+                pass
+        # clear token and delete token file locally
+        self.token_var.set('')
+        try:
+            import os
+            if os.path.exists('token.txt'):
+                os.remove('token.txt')
+        except Exception:
+            pass
+        self.update_auth_ui()
 
     def poll_queue(self):
         while not q.empty():

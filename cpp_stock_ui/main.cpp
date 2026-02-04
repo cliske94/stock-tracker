@@ -11,6 +11,8 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QString>
+#include <filesystem>
+#include <QMessageBox>
 
 #include "http_client.h"
 #include "watchlist.h"
@@ -34,9 +36,11 @@ int main(int argc, char **argv) {
     QLineEdit *passEdit = new QLineEdit(); passEdit->setPlaceholderText("Password"); passEdit->setEchoMode(QLineEdit::Password);
     QPushButton *loginBtn = new QPushButton("Login");
     QPushButton *regBtn = new QPushButton("Register");
+    QPushButton *logoutBtn = new QPushButton("Logout");
+    logoutBtn->setVisible(false);
     authRow->addWidget(new QLabel("User:")); authRow->addWidget(userEdit);
     authRow->addWidget(new QLabel("Pass:")); authRow->addWidget(passEdit);
-    authRow->addWidget(loginBtn); authRow->addWidget(regBtn);
+    authRow->addWidget(loginBtn); authRow->addWidget(regBtn); authRow->addWidget(logoutBtn);
     mainLayout->addLayout(authRow);
 
     // Top: search/ticker input and action dropdown
@@ -64,10 +68,34 @@ int main(int argc, char **argv) {
     std::string currentToken = tstore.load();
     if (!currentToken.empty()) {
         showText(std::string("Loaded saved token: ") + currentToken);
+        // reflect logged-in state: make login button act as logout
+        loginBtn->setText("Logout");
+        regBtn->setVisible(false);
+        logoutBtn->setVisible(false);
     }
 
     QObject::connect(loginBtn, &QPushButton::clicked, [&](){
         result->clear();
+        // if already logged in, perform logout
+        if (!currentToken.empty()) {
+            // confirm
+            QMessageBox::StandardButton reply = QMessageBox::question(&window, "Logout", "Are you sure you want to logout?", QMessageBox::Yes|QMessageBox::No);
+            if (reply != QMessageBox::Yes) return;
+            try {
+                // call server logout endpoint
+                http_post_json_auth(std::string(JAVA_API_BASE) + "/auth/logout", std::string("{}"), currentToken);
+            } catch (...) {}
+            currentToken.clear();
+            try { std::filesystem::remove("token.txt"); } catch(...) {}
+            tstore.save(std::string());
+            showText("Logged out");
+            loginBtn->setText("Login");
+            regBtn->setVisible(true);
+            // ensure logoutBtn hidden if present
+            logoutBtn->setVisible(false);
+            return;
+        }
+        // perform login
         QString user = userEdit->text().trimmed();
         QString pass = passEdit->text();
         if (user.isEmpty() || pass.isEmpty()) { showText("Enter username and password"); return; }
@@ -85,6 +113,10 @@ int main(int argc, char **argv) {
                     currentToken = resp.substr(q1+1, q2-q1-1);
                     tstore.save(currentToken);
                     showText(std::string("Logged in, token=") + currentToken);
+                    // update UI: change login button into logout
+                    loginBtn->setText("Logout");
+                    regBtn->setVisible(false);
+                    logoutBtn->setVisible(false);
                     return;
                 }
             }
@@ -110,6 +142,10 @@ int main(int argc, char **argv) {
                     currentToken = resp.substr(q1+1, q2-q1-1);
                     tstore.save(currentToken);
                     showText(std::string("Registered, token=") + currentToken);
+                    // update UI: make login button act as logout
+                    loginBtn->setText("Logout");
+                    regBtn->setVisible(false);
+                    logoutBtn->setVisible(false);
                     return;
                 }
             }
@@ -192,6 +228,9 @@ int main(int argc, char **argv) {
             }
         }
     });
+
+    // logout handled via login button toggle; hide extra logout button
+    logoutBtn->setVisible(false);
 
     window.resize(800, 600);
     window.show();

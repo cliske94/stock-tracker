@@ -57,4 +57,18 @@ public class AuthController {
         resp.put("token", token);
         return ResponseEntity.ok(resp);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String auth) {
+        if (auth == null || auth.isBlank()) return ResponseEntity.status(401).body("unauthorized");
+        String prefix = "Bearer ";
+        if (!auth.startsWith(prefix)) return ResponseEntity.status(401).body("unauthorized");
+        String token = auth.substring(prefix.length());
+        Optional<User> uo = userRepo.findByToken(token);
+        if (uo.isEmpty()) return ResponseEntity.status(401).body("invalid token");
+        User u = uo.get();
+        u.setToken(null);
+        userRepo.save(u);
+        return ResponseEntity.ok().build();
+    }
 }

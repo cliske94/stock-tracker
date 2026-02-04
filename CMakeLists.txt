@@ -55,20 +55,36 @@ else()
 endif()
 
 include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/heads/main.zip
-  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-)
-FetchContent_MakeAvailable(googletest)
+
+# Prefer system-installed GoogleTest (faster / offline-friendly). If not found,
+# fall back to downloading via FetchContent.
+find_package(GTest QUIET)
+if (NOT GTest_FOUND)
+  FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG main
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  )
+  FetchContent_MakeAvailable(googletest)
+endif()
 
 enable_testing()
+## Determine GTest main library target in a portable way
+if (TARGET GTest::gtest_main)
+  set(GTEST_MAIN_LIB GTest::gtest_main)
+elseif (TARGET gtest_main)
+  set(GTEST_MAIN_LIB gtest_main)
+else()
+  message(FATAL_ERROR "GTest main library not found")
+endif()
+
 add_executable(greetings_test tests/greetings_test.cpp)
-target_link_libraries(greetings_test PRIVATE greetings gtest_main)
+target_link_libraries(greetings_test PRIVATE greetings ${GTEST_MAIN_LIB} Threads::Threads)
 add_test(NAME greetings_test COMMAND greetings_test)
 
 add_executable(concurrency_test tests/concurrency_test.cpp)
-target_link_libraries(concurrency_test PRIVATE greetings gtest_main Threads::Threads)
+target_link_libraries(concurrency_test PRIVATE greetings ${GTEST_MAIN_LIB} Threads::Threads)
 add_test(NAME concurrency_test COMMAND concurrency_test)
 
 add_executable(bench_threads benchmarks/thread_bench.cpp)

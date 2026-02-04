@@ -11,9 +11,8 @@ services:
     command: ["/bin/bash"]
 
   spring:
-    build:
-      context: .
-      target: spring-runtime
+    # Use a prebuilt image to avoid docker-compose 'ContainerConfig' errors
+    # Build the image separately with `docker build --target spring-runtime -t spring-hello-world:latest .`
     image: spring-hello-world:latest
     container_name: spring_app
     ports:
@@ -21,6 +20,13 @@ services:
     volumes:
       - ./spring_hello_world/data:/app/data
     restart: unless-stopped
+    environment:
+      - JAVA_OPTS=-Xms128m -Xmx512m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   help:
     build:

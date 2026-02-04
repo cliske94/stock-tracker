@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile: build the full project on Ubuntu then produce a runtime image
-FROM ubuntu:24.04 AS builder
+FROM gradle:8.4-jdk21 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -7,12 +7,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     pkg-config \
     git \
+    libgtest-dev \
     libcurl4-openssl-dev \
     openjdk-17-jdk \
     libsdl2-dev \
     libsdl2-ttf-dev \
     qtbase5-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Build and install libgtest (Debian packages ship sources only)
+RUN set -ex \
+ && if [ -d /usr/src/googletest ]; then \
+      cd /usr/src/googletest && cmake . && make -j"$(nproc)" && cp lib/*.a /usr/lib || true; \
+    fi
 
 WORKDIR /src
 # copy entire project
@@ -22,12 +29,11 @@ COPY . /src/
 RUN rm -rf /src/build /src/CMakeCache.txt /src/CMakeFiles || true
 
 # Configure, build C++ components, run tests, then build the Spring Boot jar
-RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+ RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
  && cmake --build build --parallel \
  && cd build && ctest --output-on-failure \
  && cd /src/spring_hello_world \
- && chmod +x ./gradlew || true \
- && ./gradlew clean bootJar -x test --no-daemon || true
+ && gradle --no-daemon clean build -x test
 
 FROM ubuntu:24.04 AS cpp-runtime
 ENV DEBIAN_FRONTEND=noninteractive
@@ -58,14 +64,20 @@ CMD ["/bin/bash"]
 
 
 ### Spring Boot runtime image (built from the same builder stage)
-FROM eclipse-temurin:17-jre-jammy AS spring-runtime
+FROM eclipse-temurin:21-jre AS spring-runtime
 WORKDIR /app
 # Copy the built Spring Boot jar from the builder stage
-COPY --from=builder /src/spring_hello_world/build/libs/*.jar /app/app.jar
+COPY --from=builder /src/spring_hello_world/build/libs/spring_hello_world-0.1.0.jar /app/app.jar
+
+# Copy the application data (SQLite database) so the packaged application.properties
+# which references ./data/stocks.db will find the DB at runtime.
+COPY --from=builder /src/spring_hello_world/data /app/data
 
 ENV JAVA_OPTS="-Xms128m -Xmx512m"
 EXPOSE 8080
-ENTRYPOINT ["sh","-c","exec java $JAVA_OPTS -Dspring.config.location=/app/data/ -jar /app/app.jar"]
+# Use the packaged application.properties (located on the classpath) so the
+# bundled datasource settings (jdbc:sqlite:./data/stocks.db) are respected.
+ENTRYPOINT ["sh","-c","exec java $JAVA_OPTS -jar /app/app.jar"]
 
 
 ### Django help site runtime

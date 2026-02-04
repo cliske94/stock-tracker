@@ -1,14 +1,18 @@
-apply plugin: 'java'
-apply plugin: 'application'
+plugins {
+    id 'org.springframework.boot' version '2.7.13'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'java'
+    id 'application'
+}
 
 group = 'com.example'
 version = '0.1.0'
-sourceCompatibility = '24'
-targetCompatibility = '24'
+sourceCompatibility = '21'
+targetCompatibility = '21'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -22,6 +26,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web:2.7.13'
     implementation 'org.springframework.boot:spring-boot-starter-websocket:2.7.13'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    // Ensure jackson core/annotations versions match databind to avoid NoClassDefFoundError
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.7.13'
     // JAXB API + runtime for XML binding (adds javax.xml.bind.* at runtime)
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:2.3.3'
@@ -46,9 +53,9 @@ test {
 }
 
 tasks.named('compileTestJava', JavaCompile) {
-    options.release = 17
+    options.release = 21
 }
 
 tasks.named('compileJava', JavaCompile) {
-    options.release = 17
+    options.release = 21
 }
