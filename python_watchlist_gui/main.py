@@ -21,6 +21,17 @@ def _python_heartbeat_loop():
             requests.post(hb_url, json={'app': 'python_watchlist_gui', 'ts': ts}, timeout=5)
         except Exception:
             pass
+        # optional: report to dashboard ingestion endpoint
+        try:
+            dash = os.environ.get('DASHBOARD_URL')
+            if dash:
+                metric = {'service': 'python_watchlist_gui', 'uptime': int(ts/1000), 'requests': 0}
+                try:
+                    requests.post(dash.rstrip('/') + '/ingest', json=metric, timeout=3)
+                except Exception:
+                    pass
+        except Exception:
+            pass
         try:
             with open(ts_file, 'w') as f:
                 f.write(str(ts))
