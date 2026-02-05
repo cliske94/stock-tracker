@@ -1,0 +1,87 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+
+{% block content %}
+<h1>noVNC / VNC Troubleshooting</h1>
+<p>This page collects quick verification steps and fixes when exposing X-based GUIs over the network using <code>x11vnc</code> and <a href="https://github.com/novnc/noVNC">noVNC</a> (websockify proxy).</p>
+
+<h2>Quick checklist</h2>
+<ul>
+  <li>Confirm your GUI process has an X display and visible windows: <code>DISPLAY=:3 xwininfo -root -tree</code>.</li>
+  <li>Confirm x11vnc is listening on the expected port: <code>ss -ltnp | egrep ':5901|:5902'</code>.</li>
+  <li>Confirm websockify (noVNC) is proxying correctly: <code>ss -ltnp | egrep ':6080|:6081'</code> and check the proxy log files.</li>
+  <li>Open the browser to the noVNC URL: <code>http://localhost:6081/vnc.html</code> and check the browser console for WebSocket errors.</li>
+</ul>
+
+<h2>Common fixes</h2>
+
+<h3>1) Black screen in browser but VNC server shows frame updates</h3>
+<ul>
+  <li>Force x11vnc to send a full framebuffer on connect: restart with <code>-noxdamage -nowf</code> (disables X damage and X shared memory optimizations):
+    <pre><code>/usr/bin/x11vnc -display :3 -rfbport 5901 -forever -shared -nopw -noxdamage -nowf -bg -o /home/cody/x11vnc_5901.log
+</code></pre>
+  </li>
+  <li>Restart websockify (run as your user, not root) so noVNC connects to the fresh VNC server:
+    <pre><code>/home/cody/.venv_ws/bin/python -m websockify 0.0.0.0:6081 127.0.0.1:5901 --web /tmp/noVNC &> /home/cody/websockify_6081.log &
+</code></pre>
+  </li>
+  <li>If the browser console shows successful WebSocket upgrade but the canvas stays black, try connecting with a native VNC client to verify the server contents: <code>vncviewer 127.0.0.1:5901</code>.</li>
+</ul>
+
+<h3>2) x11vnc fails to open the display (authorization required)</h3>
+<ul>
+  <li>Generate a local xauth file from the running X server and pass it to x11vnc:
+    <pre><code>DISPLAY=:1 xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f /home/cody/xauth_watch nmerge -
+/usr/bin/x11vnc -display :1 -auth /home/cody/xauth_watch -rfbport 5901 ...
+</code></pre>
+  </li>
+  <li>Alternatively, run the GUI and x11vnc as the same user that owns the X session to avoid Xauthority issues.</li>
+</ul>
+
+<h3>3) Websockify (noVNC) can't connect to 127.0.0.1:5901</h3>
+<ul>
+  <li>Confirm the VNC server is bound to localhost or 0.0.0.0 and the correct port with <code>ss -ltnp</code> or <code>netstat -ltnp</code>.</li>
+  <li>Ensure no other process (docker-proxy, root-run instances) is occupying the ports. Stop conflicting containers or restart websockify on a free port and update the browser URL accordingly.</li>
+</ul>
+
+<h2>Useful commands (examples run as user <strong>cody</strong>)</h2>
+<pre><code># Start a virtual X display and run the Python GUI on :3
+Xvfb :3 -screen 0 1024x768x24 &
+export DISPLAY=:3
+cd python_watchlist_gui
+.venv/bin/python main.py &> /home/cody/python_main_3.log &
+
+# Start x11vnc attached to :3 and log to file
+/usr/bin/x11vnc -display :3 -rfbport 5901 -forever -shared -nopw -noxdamage -nowf -bg -o /home/cody/x11vnc_5901.log
+
+# Start websockify/noVNC from a user venv (serves /vnc.html)
+/home/cody/.venv_ws/bin/python -m websockify 0.0.0.0:6081 127.0.0.1:5901 --web /tmp/noVNC &> /home/cody/websockify_6081.log &
+
+# Inspect listeners
+ss -ltnp | egrep ':5901|:6081'
+
+# Inspect x11vnc log when connecting
+tail -f /home/cody/x11vnc_5901.log
+# Inspect websockify log
+tail -f /home/cody/websockify_6081.log
+
+# Verify GUI windows are present
+DISPLAY=:3 xwininfo -root -tree | egrep -i 'watchlist|stock'
+
+# If web client fails, check browser console (press F12) for websocket errors.
+</code></pre>
+
+<h2>Python GUI specific notes</h2>
+<ul>
+  <li>The Python GUI reads a token file at <code>/app/token.txt</code> when present (development host path: <code>/home/cody/Projects/token.txt</code>) and will auto-populate the watchlist.</li>
+  <li>It supports environment variables <code>BACKEND_URL</code> and <code>BACKEND_WS</code> to point to a non-default backend (the Spring Boot backend runs on <code>http://localhost:8080</code> in our dev environment).</li>
+</ul>
+
+<h2>When to collect logs for further debugging</h2>
+<p>If you still see a black screen after restarting x11vnc with <code>-noxdamage -nowf</code> and restarting websockify, gather:</p>
+<ul>
+  <li>Tail of x11vnc log around the connect: <code>tail -n 200 /home/cody/x11vnc_5901.log</code></li>
+  <li>Tail of websockify log: <code>tail -n 200 /home/cody/websockify_6081.log</code></li>
+  <li>Browser console output (copy messages from DevTools → Console) when clicking Connect on the noVNC page.</li>
+</ul>
+
+{% endblock %}

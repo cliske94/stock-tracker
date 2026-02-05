@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import Http404
+from django.http import Http404, JsonResponse
 
 # simple in-memory page index
 PAGES = [
@@ -7,6 +7,7 @@ PAGES = [
     {"title": "Using the Rust GUI", "slug": "rust-gui", "summary": "How to build and use the Rust SDL2 GUI frontend."},
     {"title": "Using the C++ client", "slug": "cpp-client", "summary": "Build/run notes for the C++ clients and examples."},
     {"title": "WebSockets UI (Python)", "slug": "websockets-ui", "summary": "Using the Python Tkinter WebSockets GUI to view and manage your watchlist."},
+    {"title": "noVNC / VNC Troubleshooting", "slug": "novnc", "summary": "How to expose X displays via x11vnc and noVNC, common problems and fixes."},
 ]
 
 def index(request):
@@ -24,3 +25,7 @@ def page(request, slug):
 
 def api_spec(request):
     return render(request, 'helpcenter/help_pages/api-spec.html', { 'page': PAGES[0] })
+
+def health(request):
+    # Simple health endpoint used by docker-compose healthchecks
+    return JsonResponse({'status': 'ok'})

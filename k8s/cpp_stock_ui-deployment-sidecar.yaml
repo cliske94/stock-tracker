@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpp-stock-ui-sidecar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cpp-stock-ui-sidecar
+  template:
+    metadata:
+      labels:
+        app: cpp-stock-ui-sidecar
+    spec:
+      containers:
+        - name: app
+          image: cpp-stock-ui:latest
+          ports:
+            - containerPort: 5901
+              name: vnc
+            - containerPort: 9090
+              name: health
+          env:
+            - name: VNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cpp-stock-ui-secret
+                  key: VNC_PASSWORD
+            - name: BACKEND_URL
+              value: "http://spring_app:8080"
+            - name: BACKEND_HEARTBEAT_URL
+              value: "http://spring_app:8080/heartbeat"
+          readinessProbe:
+            httpGet:
+              path: /internal/heartbeat
+              port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+        - name: novnc-sidecar
+          image: novnc/websockify:latest
+          # this image is illustrative; you may prefer to use your own websockify/noVNC image
+          ports:
+            - containerPort: 6082
+              name: novnc
+          env:
+            - name: TARGET_HOST
+              value: "127.0.0.1"
+            - name: TARGET_PORT
+              value: "5901"
+          # sidecar readiness could check its web root
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 6082
+            initialDelaySeconds: 3
+            periodSeconds: 10
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cpp-stock-ui-sidecar
+spec:
+  selector:
+    app: cpp-stock-ui-sidecar
+  ports:
+    - name: novnc
+      port: 6082
+      targetPort: 6082
+  type: ClusterIP

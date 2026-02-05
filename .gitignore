@@ -4,3 +4,35 @@ build/
 *.exe
 **/CMakeFiles/
 **/cmake_install.cmake
+
+# Local tokens and secrets
+token.txt
+*.token
+# environment overrides
+.env.local
+.env.*
+
+# Python virtualenvs and caches
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+
+# Keys and certificates
+*.pem
+*.key
+*.crt
+*.p12
+
+# Databases and runtime artifacts
+/data/*.db
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+
+# OS files
+.DS_Store

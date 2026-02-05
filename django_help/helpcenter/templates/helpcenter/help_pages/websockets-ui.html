@@ -6,18 +6,37 @@
 
 <h2>Overview</h2>
 <ul>
-  <li>The GUI connects to the backend plain WebSocket endpoint at <code>ws://localhost:8080/ws-plain</code> to receive live price updates.</li>
-  <li>It uses the REST API at <code>http://localhost:8080</code> for authentication and watchlist management.</li>
+  <li>The GUI connects to the backend WebSocket endpoint. By default the code expects the backend at <code>http://localhost:8080</code> and a WS URL like <code>ws://localhost:8080/ws-plain</code>, but the runtime is configurable via environment variables described below.</li>
+  <li>It uses the REST API at the configured `BACKEND_URL` for authentication and watchlist management.</li>
   <li>Authentication: use the <code>/auth/register</code> and <code>/auth/login</code> endpoints which return a token used in the <code>Authorization: Bearer &lt;token&gt;</code> header.</li>
 </ul>
 
+<h3>Configuration</h3>
+<ul>
+  <li><strong>Environment vars:</strong> the GUI recognizes <code>BACKEND_URL</code> and <code>BACKEND_WS</code> to override the default endpoints when running in containers or different hosts.</li>
+  <li><strong>Token auto-populate:</strong> If a token file is present at <code>/app/token.txt</code> (host path used in our dev setup: <code>/home/cody/Projects/token.txt</code>), the GUI will auto-load it and attempt to fetch the watchlist without manual login.</li>
+</ul>
+
 <h2>Running the GUI</h2>
-<p>Start the backend (Spring Boot) on port 8080, then from the project root:</p>
+<p>Start the backend (Spring Boot) on port 8080, then from the project root you can run locally:</p>
 <pre><code>cd python_watchlist_gui
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/python main.py
 </code></pre>
+
+<p>Or run in the container image (recommended for browser exposure via noVNC): the provided <code>start.sh</code> will start a virtual X server, x11vnc and supervise websockify/noVNC when available. When running in the workspace we expose the GUI to the browser using websockify on port <strong>6081</strong> which proxies to VNC <strong>5901</strong> (display <code>:1</code> or a fresh display such as <code>:3</code> if restarted).</p>
+
+<p>Browser URL for noVNC (example):</p>
+<pre><code>http://localhost:6081/vnc.html  # click Connect
+</code></pre>
+
+<h3>Log files</h3>
+<ul>
+  <li>Websockify log: <code>/home/cody/websockify_6081.log</code></li>
+  <li>x11vnc log (VNC server): <code>/home/cody/x11vnc_5901.log</code></li>
+  <li>GUI supervisor log (when using the container-style start): <code>/tmp/gui.log</code></li>
+</ul>
 
 <h2>UI Features</h2>
 <ul>
@@ -31,8 +50,8 @@ python3 -m venv .venv
 <h2>Notes & Troubleshooting</h2>
 <ul>
   <li>If remove operations fail, check the backend logs for transaction errors; the GUI uses a POST fallback endpoint <code>/watchlist/remove</code> which expects either <code>id</code> or <code>ticker</code> as parameters.</li>
-  <li>Ensure the backend is reachable at <code>http://localhost:8080</code> and no firewall blocks WebSocket connections.</li>
-  <li>See <a href="/help/websockets-ui/">Help Center</a> for more information.</li>
+  <li>Ensure the backend is reachable at the configured <code>BACKEND_URL</code> and no firewall blocks WebSocket connections.</li>
+  <li>If you see a black screen in the browser noVNC client, check the <a href="/help/novnc/">noVNC troubleshooting</a> page for steps to verify Xvfb/x11vnc and to restart the GUI on a fresh display.</li>
 </ul>
 
 {% endblock %}

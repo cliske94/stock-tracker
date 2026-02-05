@@ -47,11 +47,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxcb-icccm4 \
     libx11-6 \
     libxcb1 \
+    python3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/hello
 # copy built outputs from builder stage; some targets may be missing
 COPY --from=builder /src/build /opt/hello/build
+
+# Copy the lightweight C++ health endpoint server script
+COPY ./tools/cpp_health.py /opt/hello/cpp_health.py
 
 # Symlinks to make running easy
 RUN if [ -f /opt/hello/build/hello_args ]; then ln -s /opt/hello/build/hello_args /usr/local/bin/hello_args; fi || true
@@ -87,6 +92,7 @@ WORKDIR /app
 # Install minimal build deps for some Python packages (kept small)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only requirements first for Docker layer caching

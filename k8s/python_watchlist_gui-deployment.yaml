@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-watchlist-gui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-watchlist-gui
+  template:
+    metadata:
+      labels:
+        app: python-watchlist-gui
+    spec:
+      containers:
+        - name: gui
+          image: cliske01/python-watchlist-gui:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "2Gi"
+          ports:
+            - containerPort: 6080
+              name: novnc
+            - containerPort: 9090
+              name: health
+          env:
+            - name: VNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: python-watchlist-secret
+                  key: VNC_PASSWORD
+            - name: BACKEND_URL
+              value: "http://spring_app:8080"
+            - name: BACKEND_HEARTBEAT_URL
+              value: "http://spring_app:8080/heartbeat"
+            - name: ENABLE_CRUD_CHECK
+              value: "true"
+            - name: BACKEND_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: backend-credentials
+                  key: BACKEND_TOKEN
+          readinessProbe:
+            httpGet:
+              path: /internal/heartbeat
+              port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /internal/heartbeat
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: python-watchlist-secret
+stringData:
+  VNC_PASSWORD: "87ranger"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-watchlist-gui
+spec:
+  selector:
+    app: python-watchlist-gui
+  ports:
+    - name: novnc
+      port: 6080
+      targetPort: 6080
+  type: ClusterIP

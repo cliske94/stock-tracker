@@ -13,6 +13,10 @@
 #include <QString>
 #include <filesystem>
 #include <QMessageBox>
+#include <thread>
+#include <chrono>
+#include <cstdlib>
+#include <fstream>
 
 #include "http_client.h"
 #include "watchlist.h"
@@ -22,6 +26,31 @@ static const std::string JAVA_API_BASE = "http://localhost:8080";
 
 static QString toQString(const std::string &s) { return QString::fromStdString(s); }
 static std::string toStdString(const QString &s) { return s.toStdString(); }
+
+// Heartbeat thread: periodically POST to BACKEND /heartbeat and write a local timestamp
+static void heartbeat_loop() {
+    const char *hb_env = std::getenv("BACKEND_HEARTBEAT_URL");
+    std::string hb_url = hb_env ? std::string(hb_env) : (JAVA_API_BASE + std::string("/heartbeat"));
+    const char *ival = std::getenv("HEARTBEAT_INTERVAL");
+    int interval = 30;
+    if (ival) interval = std::atoi(ival);
+    while (true) {
+        try {
+            long long ts = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()).count();
+            std::string payload = std::string("{\"app\":\"cpp_stock_ui\",\"ts\":") + std::to_string(ts) + "}";
+            try {
+                http_post_json(hb_url, payload);
+            } catch (...) {}
+            // write local timestamp file for health server to read
+            try {
+                std::ofstream f("/tmp/cpp_heartbeat");
+                if (f) f << ts;
+            } catch (...) {}
+        } catch (...) {}
+        std::this_thread::sleep_for(std::chrono::seconds(interval));
+    }
+}
 
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
@@ -233,6 +262,10 @@ int main(int argc, char **argv) {
     logoutBtn->setVisible(false);
 
     window.resize(800, 600);
+    // start heartbeat thread
+    try {
+        std::thread(heartbeat_loop).detach();
+    } catch (...) {}
     window.show();
     return app.exec();
 }

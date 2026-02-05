@@ -8,7 +8,13 @@ services:
     container_name: hello_cpp
     stdin_open: true
     tty: true
-    command: ["/bin/bash"]
+    # start a lightweight health server in the background and drop to bash
+    command: ["sh", "-c", "python3 /opt/hello/cpp_health.py & exec /bin/bash"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8082/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   spring:
     # Use a prebuilt image to avoid docker-compose 'ContainerConfig' errors
@@ -41,3 +47,63 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8001/help/health/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  python_gui:
+    build:
+      context: ./python_watchlist_gui
+    image: python-watchlist-gui:latest
+    container_name: python_watchlist_gui
+    depends_on:
+      - spring
+    working_dir: /app
+    volumes:
+      - ./python_watchlist_gui:/app:rw
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY=:1
+      - PYTHONUNBUFFERED=1
+      - VNC_PASSWORD=${VNC_PASSWORD:-87ranger}
+    command: sh -c "chmod +x /app/start.sh && /app/start.sh"
+    stdin_open: true
+    tty: true
+    restart: always
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9090/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    ports:
+      - "5901:5901"
+      - "6080:6080"
+      - "9090:9090"
+
+  cpp_stock_ui:
+    build:
+      context: ./cpp_stock_ui
+    image: cpp-stock-ui:latest
+    container_name: cpp_stock_ui
+    working_dir: /opt
+    volumes:
+      - ./cpp_stock_ui/start.sh:/opt/start.sh:rw
+      - ./cpp_stock_ui/stock_ui:/opt/stock_ui:ro
+    environment:
+      - DISPLAY=:1
+      - VNC_PASSWORD=${VNC_PASSWORD:-87ranger}
+    command: sh -c "chmod +x /opt/start.sh && /opt/start.sh"
+    stdin_open: true
+    tty: true
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:6082/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    ports:
+      - "6082:6082"
