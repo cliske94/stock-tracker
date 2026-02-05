@@ -49,6 +49,8 @@ spec:
                 secretKeyRef:
                   name: backend-credentials
                   key: BACKEND_TOKEN
+            - name: DASHBOARD_URL
+              value: "http://dashboard:8085"
           readinessProbe:
             httpGet:
               path: /internal/healthcheck
