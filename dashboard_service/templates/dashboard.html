@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard - Service Metrics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:20px}#controls{margin-bottom:12px}</style>
+  </head>
+  <body>
+    <h1>Service Metrics Dashboard</h1>
+    <div id="controls">
+      <label for="svc">Service:</label>
+      <select id="svc"></select>
+      <button id="refresh">Refresh</button>
+    </div>
+    <canvas id="chart" width="800" height="300"></canvas>
+    <script>
+      async function loadServices(){
+        const res = await fetch('/api/services');
+        return res.json();
+      }
+      async function loadSeries(svc){
+        const res = await fetch('/api/series?service='+encodeURIComponent(svc));
+        return res.json();
+      }
+      function toLabels(data){return data.map(d=>new Date(d.ts*1000).toLocaleTimeString())}
+      function toData(data, key){return data.map(d=>d[key])}
+
+      let chart=null;
+      async function render(){
+        const svc = document.getElementById('svc').value;
+        if(!svc) return;
+        const series = await loadSeries(svc);
+        const labels = toLabels(series);
+        const uptime = toData(series,'uptime');
+        const requests = toData(series,'requests');
+        const ctx = document.getElementById('chart').getContext('2d');
+        const datasets = [
+          {label:'Uptime (s)', data:uptime, borderColor:'blue', yAxisID:'y1'},
+          {label:'Requests', data:requests, borderColor:'green', yAxisID:'y2'}
+        ];
+        if(chart) chart.destroy();
+        chart = new Chart(ctx, {type:'line', data:{labels, datasets}, options:{scales:{y1:{position:'left'}, y2:{position:'right'}}}});
+      }
+
+      document.getElementById('refresh').addEventListener('click', render);
+
+      (async ()=>{
+        const svcs = await loadServices();
+        const sel = document.getElementById('svc');
+        svcs.forEach(s=>{const o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o)});
+        if(svcs.length) { sel.value=svcs[0]; await render(); }
+      })();
+    </script>
+  </body>
+</html>

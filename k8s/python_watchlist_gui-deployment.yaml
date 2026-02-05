@@ -67,7 +67,8 @@ kind: Secret
 metadata:
   name: python-watchlist-secret
 stringData:
-  VNC_PASSWORD: "87ranger"
+  # Replace the placeholder below by creating the Secret locally instead of committing real secrets.
+  VNC_PASSWORD: "REPLACE_ME"
 ---
 apiVersion: v1
 kind: Service

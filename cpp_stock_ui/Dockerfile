@@ -26,7 +26,8 @@ RUN apt-get update \
 
 # Copy the already-built binary and helper files from repo
 COPY stock_ui /opt/stock_ui
-COPY token.txt /opt/token.txt
+# token.txt should not be baked into images. Mount at runtime or use Kubernetes Secrets.
+# COPY token.txt /opt/token.txt
 COPY watchlist.txt /opt/watchlist.txt
 COPY start.sh /opt/start.sh
 COPY health_server.py /opt/health_server.py

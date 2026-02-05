@@ -97,6 +97,35 @@ kubectl port-forward deployment/watchlist 6081:6081
 
 4. If you want the VNC port accessible directly (not generally recommended), expose `5901` the same way. Remember security: VNC is not encrypted by default, use a secure setup for production.
 
+## Service Dashboard (container uptime & metrics)
+
+We include a small dashboard service to collect and visualize uptime/requests metrics from services. It is implemented in `dashboard_service/` and exposes a web UI on port `8085`.
+
+Build the dashboard image:
+
+```bash
+# from repository root
+docker build -t cliske01/dashboard:latest -f dashboard_service/Dockerfile dashboard_service/
+```
+
+Run locally:
+
+```bash
+docker run --rm -p 8085:8085 cliske01/dashboard:latest
+# open http://localhost:8085/ in your browser
+```
+
+Deploy to Kubernetes (example manifest included):
+
+```bash
+kubectl apply -f k8s/dashboard-deployment.yaml
+kubectl get svc dashboard
+# access via NodePort 30085 (or use port-forward)
+kubectl port-forward svc/dashboard 8085:8085
+```
+
+Services can POST metrics to `POST /ingest` as JSON: `{"service":"name","uptime":123,"requests":10}`. A sample poster is provided at `scripts/post_metric.sh`.
+
 ## Running websockify/noVNC in Kubernetes
 
 Options:

@@ -4,7 +4,8 @@ metadata:
   name: cpp-stock-ui-secret
 type: Opaque
 stringData:
-  VNC_PASSWORD: "87ranger"
+  # Placeholder value — do not commit real secrets. Create this secret with kubectl instead.
+  VNC_PASSWORD: "REPLACE_ME"
 ---
 apiVersion: apps/v1
 kind: Deployment
