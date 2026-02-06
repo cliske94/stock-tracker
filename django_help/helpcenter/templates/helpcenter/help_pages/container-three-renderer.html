@@ -1,0 +1,12 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Container: three-renderer</h2>
+<div id="graph" style="width:100%;height:60vh;border:1px solid #ddd;overflow:auto"></div>
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph three_renderer { node [shape=component]; three_renderer [label="three-renderer\nimage: three-renderer:latest\nport: 9092\nrole: serves visualizer & dev endpoints"]; public [label="public/ (viewer pages, model_meta.json)"]; tools [label="tools/ (generate, analyze, headless)"]; three_renderer -> public; three_renderer -> tools; }`;
+(async function(){ try{ const viz = new Viz({ Module: window.VizModule, render: window.render }); const svg = await viz.renderSVGElement(dot); document.getElementById('graph').appendChild(svg); } catch(err){ document.getElementById('graph').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>'; console.error(err);} })();
+</script>
+<p>Notes: the `three_renderer` container serves the static visualizations and exposes developer endpoints for syncing `model_meta.json`.</p>
+{% endblock %}

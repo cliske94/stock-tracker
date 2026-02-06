@@ -3,18 +3,64 @@
 <head>
   <meta charset="utf-8" />
   <title>Help Center</title>
-  <link rel="stylesheet" href="/static/helpcenter/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#6aa6b8',
+            warm: '#f2cfa7'
+          }
+        }
+      }
+    }
+  </script>
 </head>
 <body>
-  <h1>Help Center</h1>
-  <input id="search" placeholder="Search help..." />
-  <ul id="results">
-    {% for p in pages %}
-      <li class="result" data-slug="{{ p.slug }}"> <a href="/help/{{ p.slug }}/">{{ p.title }}</a> - {{ p.summary }}</li>
-    {% endfor %}
-  </ul>
-  <div id="content">
-    <p>Select a page to view its content.</p>
+  <div class="flex min-h-screen bg-gray-50 text-gray-900">
+    <aside class="w-80 p-7 border-r border-gray-200 bg-gradient-to-b from-warm/20 to-transparent">
+      <h1 class="text-xl font-semibold text-slate-800">Help Center</h1>
+      <div class="flex gap-2 mt-3" role="search" aria-label="Search help">
+        <input id="search" placeholder="Search help..." aria-label="Search help" class="flex-1 px-3 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent" />
+        <button id="clear" class="px-3 py-2 rounded-md bg-accent text-white">Clear</button>
+      </div>
+
+      <ul id="results" class="mt-4 space-y-2" role="list">
+        {% for p in pages %}
+          <li class="result px-3 py-2 rounded-md hover:bg-accent/10" data-slug="{{ p.slug }}">
+            <a href="#panel-{{ p.slug }}" class="block text-sm font-medium text-slate-900"><strong>{{ p.title }}</strong></a>
+            <div class="hc-summary text-xs text-slate-500 mt-1">{{ p.summary }}</div>
+          </li>
+        {% endfor %}
+      </ul>
+    </aside>
+
+    <main class="flex-1 p-8">
+      <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+        <h2 class="text-lg font-semibold">All Help Pages</h2>
+        <p class="text-sm text-slate-600 mt-2">Click a row header to expand the page content inline. Pages are lazy-loaded on first open.</p>
+      </div>
+
+      <div id="accordion" class="mt-6 space-y-3">
+        {% for p in pages %}
+          <section class="accordion-row" data-slug="{{ p.slug }}">
+            <button class="accordion-header w-full text-left bg-white border border-gray-200 rounded-md p-4 flex items-center justify-between" aria-controls="panel-{{ p.slug }}" aria-expanded="false" data-slug="{{ p.slug }}">
+              <div>
+                <strong class="text-sm font-medium text-slate-900">{{ p.title }}</strong>
+                <div class="hc-summary text-xs text-slate-500 mt-1">{{ p.summary }}</div>
+              </div>
+              <div aria-hidden="true" class="text-slate-400">▸</div>
+            </button>
+            <div id="panel-{{ p.slug }}" class="accordion-panel" role="region">
+              <div class="panel-body"><!-- content will be loaded here -->
+                <em class="text-sm text-slate-500">Click to load content...</em>
+              </div>
+            </div>
+          </section>
+        {% endfor %}
+      </div>
+    </main>
   </div>
   <script src="/static/helpcenter/search.js"></script>
 </body>

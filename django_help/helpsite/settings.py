@@ -13,6 +13,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
 ]
 
@@ -42,6 +43,9 @@ DATABASES = {
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'helpcenter', 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Use WhiteNoise static files storage so gunicorn can serve compressed files in production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Logging configuration
 import logging
@@ -88,4 +92,15 @@ LOGGING = {
     },
 }
 
-logging.config.dictConfig(LOGGING)
+try:
+    logging.config.dictConfig(LOGGING)
+except Exception as e:
+    # If file handler cannot be configured (permissions, read-only FS),
+    # fall back to console-only logging to avoid preventing Django from starting.
+    print('WARNING: logging config failed, falling back to console only:', e)
+    LOGGING['handlers'].pop('file', None)
+    if 'file' in LOGGING.get('root', {}).get('handlers', []):
+        LOGGING['root']['handlers'] = [h for h in LOGGING['root']['handlers'] if h != 'file']
+    if 'file' in LOGGING.get('loggers', {}).get('django', {}).get('handlers', []):
+        LOGGING['loggers']['django']['handlers'] = [h for h in LOGGING['loggers']['django']['handlers'] if h != 'file']
+    logging.config.dictConfig(LOGGING)

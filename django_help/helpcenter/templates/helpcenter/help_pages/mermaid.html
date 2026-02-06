@@ -1,0 +1,14 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Mermaid Diagrams & 3D Model</h2>
+<p>This page documents how Mermaid markdown is used to produce the semantic model and 3D visualizations in this repository.</p>
+<h3>Mermaid source</h3>
+<p>The canonical Mermaid markdown lives in the repository <code>mermaid-diagram.md</code>. It is converted into an intermediate <code>model_meta.json</code> which powers the viewers.</p>
+<h3>How to preview</h3>
+<ul>
+  <li>Run the converter tooling to generate <code>three_renderer/public/model_meta.json</code>.</li>
+  <li>Open the 3D viewer at <a href="/help/viewer-3d/">3D Viewer</a> (this embeds the running <code>three_renderer</code> viewer).</li>
+</ul>
+<h3>Developer notes</h3>
+<p>The conversion pipeline: <code>mermaid-diagram.md</code> → <code>generate_model_json.js</code> → <code>model_meta.json</code> → viewer. The viewer supports semantic, timeline and heatmap modes and can export glTF.</p>
+{% endblock %}

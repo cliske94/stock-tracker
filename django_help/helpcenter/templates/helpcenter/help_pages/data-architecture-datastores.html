@@ -1,0 +1,44 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Data Architecture — Datastores</h2>
+<p>Primary datastores used by the suite: embedded SQLite, MongoDB (Mongoose), and filesystem artifacts.</p>
+<div id="diagram" style="width:100%;height:72vh;border:1px solid #ddd;overflow:auto;padding:8px"></div>
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph Datastores {
+  rankdir=LR;
+  node [shape=folder, style=filled, fillcolor="#f6f8fa"];
+
+  sqlite [label="SQLite\nspring_hello_world/data/stocks.db", shape=note, fillcolor="#fffbe6"];
+  mongodb [label="MongoDB (Mongoose)\nservices/finance_tracker", shape=cylinder, fillcolor="#fffbe6"];
+  fs_artifacts [label="Filesystem Artifacts\nthree_renderer/public/model_meta*.json, screenshots", shape=component, fillcolor="#fffbe6"];
+
+  // Consumers
+  spring [label="spring_hello_world (Spring Boot)\nreads/writes SQLite"];
+  dashboard [label="dashboard_service (Flask)\nreads SQLite for metrics"];
+  finance [label="services/finance_tracker (Node/Express)\nreads/writes MongoDB"];
+  helpsite [label="django_help (helpsite)\nembeds artifacts, reads filesystem"];
+
+  // edges
+  sqlite -> spring [label="jdbc:sqlite (ORM/JPA)", color="#1f77b4"];
+  sqlite -> dashboard [label="sqlite3 read", color="#1f77b4"];
+  mongodb -> finance [label="Mongoose connections", color="#1f77b4"];
+  fs_artifacts -> helpsite [label="model_meta.json / screenshots", style=dashed];
+  fs_artifacts -> finance [label="optional imports/exports", style=dotted];
+}
+`;
+
+(async function(){
+  try{
+    const viz = new Viz({ Module: window.VizModule, render: window.render });
+    const svg = await viz.renderSVGElement(dot);
+    document.getElementById('diagram').appendChild(svg);
+  } catch (err) {
+    document.getElementById('diagram').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>';
+    console.error(err);
+  }
+})();
+</script>
+
+{% endblock %}

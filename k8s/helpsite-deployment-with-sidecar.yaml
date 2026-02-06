@@ -18,7 +18,8 @@ spec:
         - name: helpsite
           # Use the built helpsite image which includes the application
           image: local/helpsite:latest
-          command: ["sh","-c","pip install -r /app/requirements.txt && python /app/manage.py migrate && python /app/manage.py runserver 0.0.0.0:8001"]
+          # Run migrations and collectstatic once at container start, then run gunicorn.
+          command: ["sh","-c","mkdir -p /var/log/helpsite && chmod 0775 /var/log/helpsite || true && python /app/manage.py migrate --noinput && python /app/manage.py collectstatic --noinput && exec gunicorn --chdir /app --bind 0.0.0.0:8001 helpsite.wsgi:application --workers 3 --log-level info"]
           env:
             - name: LOG_PATH
               value: "/var/log/helpsite/helpsite.log"
@@ -26,6 +27,25 @@ spec:
             - name: helpsite-logs
               mountPath: /var/log/helpsite
             # removed helpsite-app mount so the container can use the image's /app
+          readinessProbe:
+            httpGet:
+              path: /help/health/
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /help/health/
+              port: 8001
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
         - name: log-sidecar
           image: local/log-sidecar:latest
           env:

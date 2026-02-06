@@ -15,6 +15,7 @@
     <a href="matrix_heatmap.html">Matrix</a>
   </div>
   <svg id="svg"></svg>
+  <div id="tooltip" style="position:fixed;pointer-events:none;display:none;z-index:60;background:rgba(255,255,255,0.98);border:1px solid #ccc;padding:8px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.12);font-size:13px;max-width:360px"></div>
   <script>
     async function load(){
       const m = await fetch('model_meta_metrics.json').then(r=>r.ok? r.json() : null);
@@ -40,9 +41,63 @@
       treemap(rootNode);
 
       const color = d3.scaleOrdinal(d3.schemeTableau10);
+      const nodeInfo = new Map((meta.nodes||[]).map(n=>[n.id, n]));
       const g = svg.selectAll('g').data(rootNode.leaves()).enter().append('g').attr('transform', d=>`translate(${d.x0},${d.y0})`);
-      g.append('rect').attr('width', d=>d.x1-d.x0).attr('height', d=>d.y1-d.y0).attr('fill', d=>color(d.parent.data.name));
+      const rects = g.append('rect')
+        .attr('width', d=>d.x1-d.x0)
+        .attr('height', d=>d.y1-d.y0)
+        .attr('fill', d=>color(d.parent.data.name))
+        .attr('data-id', d=>d.data.id);
       g.append('text').attr('x',6).attr('y',14).text(d=>d.data.name).style('font-size','12px').style('pointer-events','none');
+
+      // tooltip and selection behavior
+      const tooltip = document.getElementById('tooltip');
+      function showTooltip(ev, html){
+        tooltip.innerHTML = html; tooltip.style.display = 'block';
+        const left = Math.min(window.innerWidth - 12 - tooltip.offsetWidth, ev.clientX + 12);
+        const top = Math.min(window.innerHeight - 12 - tooltip.offsetHeight, ev.clientY + 12);
+        tooltip.style.left = left + 'px'; tooltip.style.top = top + 'px';
+      }
+      function hideTooltip(){ tooltip.style.display = 'none'; }
+
+      // info panel
+      const infoPanel = document.createElement('div');
+      Object.assign(infoPanel.style, {position:'fixed', right:'8px', bottom:'8px', zIndex:50, background:'#fff', padding:'12px', borderRadius:'6px', boxShadow:'0 6px 18px rgba(0,0,0,.12)', maxWidth:'360px', display:'none'});
+      document.body.appendChild(infoPanel);
+      let selectedId = null;
+      function clearSelection(){
+        if (selectedId){
+          const prev = document.querySelector(`rect[data-id="${selectedId}"]`);
+          if (prev) { prev.style.stroke=''; prev.style.strokeWidth=''; }
+          selectedId = null; infoPanel.style.display='none';
+        }
+      }
+      function selectNode(d){
+        clearSelection();
+        selectedId = d.data.id;
+        const rect = document.querySelector(`rect[data-id="${selectedId}"]`);
+        if (rect){ rect.style.stroke = '#ff6600'; rect.style.strokeWidth = '3px'; }
+        const info = nodeInfo.get(selectedId) || {};
+        const met = metrics[selectedId] || {};
+        let html = `<b>${d.data.name}</b><div style="margin-top:6px">id: ${selectedId}</div>`;
+        if (info.repo) html += `<div>repo: ${info.repo}</div>`;
+        if (info.subgraph) html += `<div>group: ${info.subgraph}</div>`;
+        if (met.loc!=null) html += `<div>LOC: ${met.loc}</div>`;
+        if (met.imports!=null) html += `<div>imports: ${met.imports}</div>`;
+        html += `<div style="margin-top:8px"><button id="clearBtn">Clear</button></div>`;
+        infoPanel.innerHTML = html; infoPanel.style.display='block';
+        const cb = document.getElementById('clearBtn'); if (cb) cb.addEventListener('click', clearSelection);
+      }
+
+      rects.on('mousemove', (event,d)=>{
+        const id = d.data.id; const info = nodeInfo.get(id) || {};
+        const met = metrics[id] || {};
+        let html = `<b>${d.data.name}</b><div style="margin-top:6px">id: ${id}</div>`;
+        if (info.repo) html += `<div>repo: ${info.repo}</div>`;
+        if (met.loc!=null) html += `<div>LOC: ${met.loc}</div>`;
+        if (met.imports!=null) html += `<div>imports: ${met.imports}</div>`;
+        showTooltip(event, html);
+      }).on('mouseleave', hideTooltip).on('click', (event,d)=>{ selectNode(d); });
     }
     load().catch(e=>{ document.body.innerHTML = 'Load failed: '+e; console.error(e); });
   </script>

@@ -1,0 +1,95 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Data Architecture</h2>
+<p>This diagram shows the main data flows in the application suite: generators and analyzers produce semantic model files and metrics, the Three.js/D3 viewers consume those artifacts, and monitoring/logging systems observe runtime behavior.</p>
+<div id="diagram" style="width:100%;height:72vh;border:1px solid #ddd;overflow:auto;padding:8px"></div>
+
+<!-- Viz.js from UNPKG -->
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph DataArch {
+  rankdir=LR;
+  node [shape=box, style=filled, fillcolor="#f6f8fa", color="#333"];
+
+  subgraph cluster_generators {
+    label="Generators / Tools"; style=rounded; color="#cfe3ff";
+    gen_mermaid [label="convert_mermaid.js\ngenerate_model_json.js", shape=folder];
+    gen_git [label="generate_git_history.js\n(head/time)", shape=folder];
+    gen_deps [label="analyze_deps.js\n(metrics)", shape=folder];
+    headless [label="headless_check.js\n(screenshots/QA)", shape=note, fillcolor="#fffbe6"];
+  }
+
+  subgraph cluster_artifacts {
+    label="Model Artifacts"; style=rounded; color="#fff0d6";
+    model_meta [label="public/model_meta.json", shape=note, fillcolor="#fffbe6"];
+    model_time [label="public/model_meta_time.json", shape=note, fillcolor="#fffbe6"];
+    model_metrics [label="public/model_meta_metrics.json", shape=note, fillcolor="#fffbe6"];
+  }
+
+  subgraph cluster_visualizers {
+    label="Visualizers"; style=rounded; color="#e6f7e6";
+    viewer3d [label="viewer_gltf.html\n(Three.js GLTF)", shape=oval];
+    force [label="force_graph.html\n(D3 force)", shape=oval];
+    treemap [label="treemap.html\n(D3 treemap)", shape=oval];
+    matrix [label="matrix_heatmap.html\n(matrix/canvas)", shape=oval];
+  }
+
+  subgraph cluster_help {
+    label="Help / Integration"; style=rounded; color="#f3e6ff";
+    helpsite [label="django_help (help pages)\nembeds visualizations via iframes", shape=folder];
+  }
+
+  subgraph cluster_monitoring {
+    label="Monitoring / Logs"; style=rounded; color="#fbe6e6";
+    prometheus [label="Prometheus", shape=component];
+    grafana [label="Grafana", shape=component];
+    loki [label="Loki", shape=component];
+  }
+
+  subgraph cluster_k8s { label="Kubernetes / Deployment"; style=rounded; color="#efe6ff";
+    three_deploy [label="three-renderer Deployment\n(Service: 9092)" shape=component];
+  }
+
+  // edges: generators to artifacts
+  gen_mermaid -> model_meta [label="writes/updates", color="#666"];
+  gen_git -> model_time [label="writes timeline", color="#666"];
+  gen_deps -> model_metrics [label="writes metrics", color="#666"];
+  headless -> model_meta [label="reads model + writes screenshots", style=dashed];
+
+  // artifacts to visualizers
+  model_meta -> viewer3d [label="loaded by 3D viewer", color="#1f77b4"];
+  model_meta -> force [label="loaded by force graph", color="#1f77b4"];
+  model_meta -> treemap [label="loaded by treemap", color="#1f77b4"];
+  model_meta -> matrix [label="loaded by matrix heatmap", color="#1f77b4"];
+
+  // monitoring connections
+  three_deploy -> prometheus [label="exposes metrics (scraped)", color="#d62728"];
+  three_deploy -> loki [label="pushes logs / sidecar", color="#ff7f0e"];
+  prometheus -> grafana [label="visualizes metrics", style=dashed];
+
+  // helpsite integration
+  helpsite -> viewer3d [label="embeds via iframe (dev port)", style=dashed];
+  helpsite -> force [label="embeds force_graph.html", style=dashed];
+
+  // deployment hosting
+  three_deploy -> gen_mermaid [label="hosts tools (container)", style=dotted];
+
+  // layout hints
+  { rank = same; viewer3d; force; treemap; matrix }
+}
+`;
+
+(async function(){
+  try{
+    const viz = new Viz({ Module: window.VizModule, render: window.render });
+    const svg = await viz.renderSVGElement(dot);
+    document.getElementById('diagram').appendChild(svg);
+  } catch (err) {
+    document.getElementById('diagram').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>';
+    console.error(err);
+  }
+})();
+</script>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Container: cpp-stock-ui</h2>
+<div id="graph" style="width:100%;height:60vh;border:1px solid #ddd;overflow:auto"></div>
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph cpp_stock_ui { node [shape=component]; cpp_stock_ui [label="cpp-stock-ui\nimage: cpp-stock-ui:latest\nport: 8080\nrole: C++ UI + sidecar"]; sidecar [label="log-sidecar\nrole: logging sidecar"]; cpp_stock_ui -> sidecar; }`;
+(async function(){ try{ const viz = new Viz({ Module: window.VizModule, render: window.render }); const svg = await viz.renderSVGElement(dot); document.getElementById('graph').appendChild(svg); } catch(err){ document.getElementById('graph').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>'; console.error(err);} })();
+</script>
+<p>Notes: the `cpp-stock-ui` deployment may include a logging sidecar and is part of the UI surface.</p>
+{% endblock %}

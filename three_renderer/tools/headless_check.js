@@ -12,10 +12,11 @@ async function run(){
   page.on('pageerror', err => console.log('PAGE_ERROR', err && err.stack ? err.stack : err));
   page.on('requestfailed', req => { const f = req.failure() || {}; console.log('REQUEST_FAILED', req.url(), f.errorText || f); });
 
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   try {
     await page.goto(url, {waitUntil: 'networkidle2', timeout: 20000});
     console.log('PAGE_LOADED');
-    await page.waitForTimeout(800);
+    await sleep(800);
 
     // Semantic (default) screenshot
     const semanticOut = outPrefix + '_semantic.png';
@@ -28,13 +29,13 @@ async function run(){
         const vm = document.getElementById('viewMode');
         if(vm){ vm.value = 'timeline'; vm.dispatchEvent(new Event('change')); }
       });
-      await page.waitForTimeout(600);
+      await sleep(600);
       // set slider to middle
       await page.evaluate(() => {
         const s = document.getElementById('timeSlider');
         if(s){ const max = Number(s.max||100); s.value = Math.floor(max/2); s.dispatchEvent(new Event('input')); }
       });
-      await page.waitForTimeout(900);
+      await sleep(900);
       const timelineOut = outPrefix + '_timeline.png';
       await page.screenshot({path: timelineOut, fullPage: true});
       console.log('SCREENSHOT_SAVED', timelineOut);
@@ -46,7 +47,7 @@ async function run(){
         const vm = document.getElementById('viewMode');
         if(vm){ vm.value = 'heatmap'; vm.dispatchEvent(new Event('change')); }
       });
-      await page.waitForTimeout(700);
+      await sleep(700);
       const heatOut = outPrefix + '_heatmap.png';
       await page.screenshot({path: heatOut, fullPage: true});
       console.log('SCREENSHOT_SAVED', heatOut);

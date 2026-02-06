@@ -1,0 +1,56 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Data Architecture — Data Flows</h2>
+<p>End-to-end exchange of data between services, artifacts, and monitoring components.</p>
+<div id="diagram" style="width:100%;height:72vh;border:1px solid #ddd;overflow:auto;padding:8px"></div>
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph Flows {
+  rankdir=LR;
+  node [shape=box, style=filled, fillcolor="#f6f8fa"];
+
+  // data sources
+  sqlite [label="SQLite\n(spring_hello_world/data/stocks.db)", shape=note, fillcolor="#fffbe6"];
+  mongodb [label="MongoDB\n(services/finance_tracker)", shape=cylinder, fillcolor="#fffbe6"];
+  fs [label="Filesystem\nthree_renderer/public/*.json, screenshots", shape=component, fillcolor="#fffbe6"];
+
+  // services
+  spring [label="spring_hello_world\n(Spring Boot)"];
+  finance [label="finance_tracker\n(Node + Mongoose)"];
+  helpsite [label="django_help\n(helpsite)"];
+  three [label="three_renderer\n(static server + tools)"];
+  prometheus [label="Prometheus\n(metrics)", shape=component];
+  loki [label="Loki\n(logs)", shape=component];
+
+  // flows
+  sqlite -> spring [label="read/write (ORM/JPA)"];
+  spring -> prometheus [label="exposes metrics (scraped)", color="#d62728"];
+  spring -> loki [label="app logs -> loki/promtail", color="#ff7f0e"];
+
+  mongodb -> finance [label="Mongoose DB access"];
+  finance -> three [label="(code / artifacts) analyzed by tools", style=dotted];
+
+  fs -> helpsite [label="served & embedded artifacts", style=dashed];
+  fs -> three [label="hosted static files", style=solid];
+
+  prometheus -> grafana [label="visualize metrics", style=dashed];
+
+  // layout
+  { rank = same; sqlite; mongodb; fs }
+}
+`;
+
+(async function(){
+  try{
+    const viz = new Viz({ Module: window.VizModule, render: window.render });
+    const svg = await viz.renderSVGElement(dot);
+    document.getElementById('diagram').appendChild(svg);
+  } catch (err) {
+    document.getElementById('diagram').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>';
+    console.error(err);
+  }
+})();
+</script>
+
+{% endblock %}

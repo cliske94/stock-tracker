@@ -1,0 +1,12 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Container: prometheus</h2>
+<div id="graph" style="width:100%;height:60vh;border:1px solid #ddd;overflow:auto"></div>
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph prometheus { node [shape=component]; prom [label="prometheus\nimage: prom/prometheus:latest\nport: 9090\nrole: metrics collection"]; grafana [label="grafana\nrole: visualization"]; prom -> grafana [label="scrapes / data source", style=dashed]; }`;
+(async function(){ try{ const viz = new Viz({ Module: window.VizModule, render: window.render }); const svg = await viz.renderSVGElement(dot); document.getElementById('graph').appendChild(svg); } catch(err){ document.getElementById('graph').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>'; console.error(err);} })();
+</script>
+<p>Notes: Prometheus scrapes metrics endpoints and serves as a Grafana data source.</p>
+{% endblock %}

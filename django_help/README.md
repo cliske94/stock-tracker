@@ -12,6 +12,12 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Note: On some Linux systems you may need to install the system venv package first:
+
+```bash
+sudo apt update && sudo apt install -y python3-venv
+```
+
 2. Run migrations and start dev server
 
 ```bash

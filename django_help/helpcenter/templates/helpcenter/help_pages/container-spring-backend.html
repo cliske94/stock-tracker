@@ -1,0 +1,12 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Container: spring-backend</h2>
+<div id="graph" style="width:100%;height:60vh;border:1px solid #ddd;overflow:auto"></div>
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph spring_backend { node [shape=component]; spring [label="spring-backend\nimage: spring-backend:latest\nport: 8080\nrole: backend API"]; db [label="sqlite/local DB\nrole: data storage"]; spring -> db; }`;
+(async function(){ try{ const viz = new Viz({ Module: window.VizModule, render: window.render }); const svg = await viz.renderSVGElement(dot); document.getElementById('graph').appendChild(svg); } catch(err){ document.getElementById('graph').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>'; console.error(err);} })();
+</script>
+<p>Notes: The Spring backend exposes REST endpoints used by frontends and other services.</p>
+{% endblock %}

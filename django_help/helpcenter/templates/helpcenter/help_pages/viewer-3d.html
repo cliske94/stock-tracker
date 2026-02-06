@@ -1,0 +1,10 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>3D Viewer (GLTF)</h2>
+<p>This page embeds the Three.js GLTF viewer from the <code>three_renderer</code> service (must be running and port-forwarded locally).</p>
+<p>If you run the development port-forward helper, the viewer is available at <code>http://localhost:9095/viewer_gltf.html</code>.</p>
+<div style="width:100%;height:70vh;border:1px solid #ddd">
+  <iframe src="http://localhost:9095/viewer_gltf.html" style="width:100%;height:100%;border:0"></iframe>
+</div>
+<p>Use the mode selector inside the embedded viewer to switch between <em>semantic</em>, <em>timeline</em>, and <em>heatmap</em> modes.</p>
+{% endblock %}

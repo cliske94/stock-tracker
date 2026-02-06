@@ -15,26 +15,42 @@
     <a href="matrix_heatmap.html">Matrix</a>
   </div>
   <svg id="svg"></svg>
+  <div id="tooltip" style="position:fixed;pointer-events:none;display:none;z-index:50;background:rgba(255,255,255,0.98);border:1px solid #ccc;padding:8px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.12);font-size:13px;max-width:360px"></div>
   <script>
     async function load(){
       const r = await fetch('model_meta.json');
       const meta = await r.json();
       const nodes = (meta.nodes||[]).map(n=>({id:n.id, name:n.name||n.id, type:n.type||'node'}));
-      const links = (meta.edges||[]).map(e=>({source:e.from, target:e.to, label:e.label||''}));
+      const nodeIds = new Set(nodes.map(n=>n.id));
+      let links = (meta.edges||[]).map(e=>({source:e.from, target:e.to, label:e.label||''}));
+      // filter out links that reference nodes not present in the nodes list
+      const missing = links.filter(l=> !nodeIds.has(l.source) || !nodeIds.has(l.target));
+      if (missing.length) console.warn('Filtered links with missing nodes:', missing);
+      links = links.filter(l=> nodeIds.has(l.source) && nodeIds.has(l.target));
 
       const width = innerWidth, height = innerHeight;
       const svg = d3.select('#svg').attr('viewBox', [0,0,width,height]);
       const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+      // zoomable container
+      const container = svg.append('g').attr('id','container');
+      const zoom = d3.zoom().scaleExtent([0.2, 6]).on('zoom', (event)=>{ container.attr('transform', event.transform); });
+      svg.call(zoom);
 
       const sim = d3.forceSimulation(nodes)
         .force('link', d3.forceLink(links).id(d=>d.id).distance(80).strength(0.7))
         .force('charge', d3.forceManyBody().strength(-220))
         .force('center', d3.forceCenter(width/2, height/2));
 
-      const link = svg.append('g').attr('stroke','#999').attr('stroke-opacity',0.7)
+      const link = container.append('g').attr('stroke','#999').attr('stroke-opacity',0.7)
         .selectAll('line').data(links).enter().append('line').attr('stroke-width',1.5);
 
-      const node = svg.append('g').selectAll('g').data(nodes).enter().append('g').call(drag(sim));
+      // helper to make safe DOM ids
+      const safeId = s => String(s).replace(/[^a-zA-Z0-9_-]/g,'_');
+
+      const node = container.append('g').selectAll('g').data(nodes).enter().append('g')
+        .attr('id', d=> 'node-' + safeId(d.id))
+        .call(drag(sim));
       node.append('circle').attr('r',10).attr('fill', d=>color(d.type));
       node.append('text').text(d=>d.name).attr('x',14).attr('y',4).style('font-size','12px');
 
@@ -43,11 +59,83 @@
         node.attr('transform', d=>`translate(${d.x},${d.y})`);
       });
 
+      const tooltip = document.getElementById('tooltip');
+      function showTooltip(ev, html){
+        tooltip.innerHTML = html;
+        tooltip.style.display = 'block';
+        const left = Math.min(window.innerWidth - 12 - tooltip.offsetWidth, ev.clientX + 12);
+        const top = Math.min(window.innerHeight - 12 - tooltip.offsetHeight, ev.clientY + 12);
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+      }
+      function hideTooltip(){ tooltip.style.display = 'none'; }
+
       node.on('click', (event,d)=>{
         navigator.clipboard && navigator.clipboard.writeText(d.id).then(()=>{
           console.log('copied',d.id);
         }).catch(()=>{});
+        // selection/highlight
+        selectNode(d);
       });
+
+      // prepare node info map for richer tooltips
+      const nodeInfo = new Map((meta.nodes||[]).map(n=>[n.id, n]));
+
+      node.on('mousemove', (event,d)=>{
+        const info = nodeInfo.get(d.id) || {};
+        let html = `<b>${d.name}</b><div style="margin-top:6px">id: ${d.id}</div>`;
+        if (info.repo) html += `<div>repo: ${info.repo}</div>`;
+        if (info.subgraph) html += `<div>group: ${info.subgraph}</div>`;
+        showTooltip(event, html);
+      }).on('mouseleave', hideTooltip);
+
+      link.on('mousemove', (event,d)=>{
+        const src = d.source.id || d.source;
+        const tgt = d.target.id || d.target;
+        const html = `<b>Link</b><div style="margin-top:6px">${src} → ${tgt}</div>${d.label?`<div>label: ${d.label}</div>`:''}`;
+        showTooltip(event, html);
+      }).on('mouseleave', hideTooltip);
+
+      // selection panel and handlers
+      const infoPanel = document.createElement('div');
+      infoPanel.id = 'infoPanel';
+      Object.assign(infoPanel.style, {position:'fixed', right:'8px', bottom:'8px', zIndex:40, background:'#fff', padding:'12px', borderRadius:'6px', boxShadow:'0 6px 18px rgba(0,0,0,.12)', maxWidth:'320px', display:'none'});
+      document.body.appendChild(infoPanel);
+
+      let selectedId = null;
+      function clearSelection(){
+        if (selectedId){
+          const prev = document.getElementById('node-' + safeId(selectedId));
+          if (prev){ const c = prev.querySelector('circle'); if (c){ c.setAttribute('stroke',''); c.setAttribute('stroke-width',''); c.setAttribute('r',10); } }
+          selectedId = null;
+          infoPanel.style.display = 'none';
+        }
+      }
+
+      function selectNode(d){
+        if (!d) return clearSelection();
+        if (selectedId && selectedId !== d.id) clearSelection();
+        selectedId = d.id;
+        const nodeEl = document.getElementById('node-' + safeId(d.id));
+        if (nodeEl){ const c = nodeEl.querySelector('circle'); if (c){ c.setAttribute('stroke','#ff6600'); c.setAttribute('stroke-width','2'); c.setAttribute('r','14'); } }
+        const info = nodeInfo.get(d.id) || {};
+        let html = `<b>${d.name}</b><div style="margin-top:6px">id: ${d.id}</div>`;
+        if (info.repo) html += `<div>repo: ${info.repo}</div>`;
+        if (info.subgraph) html += `<div>group: ${info.subgraph}</div>`;
+        if (info.lang) html += `<div>lang: ${info.lang}</div>`;
+        html += `<div style="margin-top:8px"><button id="focusBtn">Focus</button> <button id="clearSel">Clear</button></div>`;
+        infoPanel.innerHTML = html; infoPanel.style.display = 'block';
+        const focusBtn = document.getElementById('focusBtn');
+        const clearBtn = document.getElementById('clearSel');
+        if (focusBtn) focusBtn.addEventListener('click', ()=>{
+          const t = d3.zoomTransform(svg.node());
+          const scale = Math.max(1, Math.min(4, t.k * 1.5));
+          const x = width/2 - d.x * scale;
+          const y = height/2 - d.y * scale;
+          svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(scale));
+        });
+        if (clearBtn) clearBtn.addEventListener('click', clearSelection);
+      }
 
       function drag(sim){
         function started(event,d){ if(!event.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }

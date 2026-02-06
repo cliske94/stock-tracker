@@ -1,0 +1,18 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Application Suite Overview</h2>
+<p>This section provides quick links and descriptions for the deployed containers and services that make up the project.</p>
+<ul>
+  <li><a href="/help/container-three-renderer/">three-renderer</a> — Node/Express visualizer service.</li>
+  <li><a href="/help/container-cpp-stock-ui/">cpp-stock-ui</a> — C++ UI + sidecar deployment.</li>
+  <li><a href="/help/container-dashboard-service/">dashboard-service</a> — Flask dashboard service.</li>
+  <li><a href="/help/container-python-watchlist-gui/">python-watchlist-gui</a> — Python GUI (noVNC wrapper).</li>
+  <li><a href="/help/container-prometheus/">prometheus</a> — Prometheus metrics server.</li>
+  <li><a href="/help/container-grafana/">grafana</a> — Grafana dashboards.</li>
+  <li><a href="/help/container-loki/">loki</a> — Loki log storage.</li>
+  <li><a href="/help/container-spring-backend/">spring-backend</a> — Spring Boot API backend.</li>
+  <li><a href="/help/container-angular-ui/">angular-ui</a> — Angular frontend.</li>
+</ul>
+<p>Each container page contains a small Graphviz diagram describing the container image, ports, and role.
+These are rendered client-side using Viz.js.</p>
+{% endblock %}

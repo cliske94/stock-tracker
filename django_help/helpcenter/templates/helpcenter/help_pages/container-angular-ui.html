@@ -1,0 +1,12 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Container: angular-ui</h2>
+<div id="graph" style="width:100%;height:60vh;border:1px solid #ddd;overflow:auto"></div>
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph angular_ui { node [shape=component]; angular [label="angular-ui\nimage: angular-ui:latest\nport: 4200\nrole: frontend"] ; api [label="spring-backend\nrole: API"] ; angular -> api; }`;
+(async function(){ try{ const viz = new Viz({ Module: window.VizModule, render: window.render }); const svg = await viz.renderSVGElement(dot); document.getElementById('graph').appendChild(svg); } catch(err){ document.getElementById('graph').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>'; console.error(err);} })();
+</script>
+<p>Notes: Angular UI is the web frontend and typically speaks to the Spring backend.</p>
+{% endblock %}

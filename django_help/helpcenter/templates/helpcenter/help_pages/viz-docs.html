@@ -1,0 +1,19 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Visualizations Overview</h2>
+<p>This page documents the available visualizations and how they are generated.</p>
+<ul>
+  <li><b>Mermaid → Semantic Model:</b> The Mermaid markdown is parsed and converted into a semantic JSON model used across all visualizations.</li>
+  <li><b>3D Viewer:</b> A Three.js viewer loads a mesh (OBJ/glTF) and overlays semantic labels and timeline/heatmap layers.</li>
+  <li><b>Force Graph:</b> D3 force-directed layout showing nodes and edges from the semantic model. Supports zoom/pan, hover tooltips, and click-to-highlight.</li>
+  <li><b>Treemap:</b> Shows LOC-based area sizing, with tooltips and selectable nodes reporting repo, LOC, and import counts.</li>
+</ul>
+<p>Developer workflow:
+<ol>
+  <li>Edit <code>mermaid-diagram.md</code> in the repository.</li>
+  <li>Run the converter: <code>node three_renderer/tools/generate_model_json.js</code> and optionally <code>node three_renderer/tools/analyze_deps.js</code> and <code>node three_renderer/tools/generate_git_history.js</code>.</li>
+  <li>Sync to the running viewer: <code>./three_renderer/tools/post_model_meta_dev.sh</code> or use the port-forwarded embed to reload the viewer.</li>
+</ol>
+</p>
+<p>See the embedded pages for interactive exploration: <a href="/help/viewer-3d/">3D Viewer</a>, <a href="/help/force-graph/">Force Graph</a>, <a href="/help/treemap/">Treemap</a>.</p>
+{% endblock %}

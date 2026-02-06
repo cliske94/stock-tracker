@@ -1,0 +1,12 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Container: python-watchlist-gui</h2>
+<div id="graph" style="width:100%;height:60vh;border:1px solid #ddd;overflow:auto"></div>
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph python_watchlist_gui { node [shape=component]; gui [label="python-watchlist-gui\nimage: python-watchlist-gui:latest\nport: 8081\nrole: Python GUI (noVNC)"]; novnc [label="noVNC\nrole: VNC web client"]; gui -> novnc; }`;
+(async function(){ try{ const viz = new Viz({ Module: window.VizModule, render: window.render }); const svg = await viz.renderSVGElement(dot); document.getElementById('graph').appendChild(svg); } catch(err){ document.getElementById('graph').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>'; console.error(err);} })();
+</script>
+<p>Notes: this container wraps a Python GUI with noVNC exposure for remote access.</p>
+{% endblock %}

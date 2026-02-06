@@ -1,0 +1,45 @@
+{% extends "helpcenter/help_pages/_page_wrapper.html" %}
+{% block content %}
+<h2>Data Architecture — Services & Pipelines</h2>
+<p>Key services and data-producing pipelines across the repository.</p>
+<div id="diagram" style="width:100%;height:72vh;border:1px solid #ddd;overflow:auto;padding:8px"></div>
+<script src="https://unpkg.com/viz.js@2.1.2/viz.js"></script>
+<script src="https://unpkg.com/viz.js@2.1.2/full.render.js"></script>
+<script>
+const dot = `digraph Services {
+  rankdir=TB;
+  node [shape=box, style=filled, fillcolor="#f6f8fa"];
+
+  three_tools [label="three_renderer/tools\n(convert, analyze, headless)"];
+  three_public [label="three_renderer/public\n(viewers, model_meta.json)"];
+  three_app [label="three_renderer/app.js\n(static server + dev POST endpoints)"];
+
+  finance [label="services/finance_tracker\n(Node + Mongoose)"];
+  spring [label="spring_hello_world\n(Spring Boot, SQLite)"];
+  dashboard [label="dashboard_service\n(Flask, sqlite dashboard)"];
+  cpp_ui [label="cpp_stock_ui\n(C++ frontend)"];
+  helpsite [label="django_help\n(helpsite templates)"];
+
+  // pipelines
+  three_tools -> three_public [label="generate model_meta.json, screenshots"];
+  three_public -> helpsite [label="embedded pages / assets", style=dashed];
+  finance -> three_tools [label="(optionally) source code analyzed", style=dotted];
+  spring -> dashboard [label="exposes data for dashboards", color="#1f77b4"];
+
+  { rank = same; three_tools; three_app; three_public }
+}
+`;
+
+(async function(){
+  try{
+    const viz = new Viz({ Module: window.VizModule, render: window.render });
+    const svg = await viz.renderSVGElement(dot);
+    document.getElementById('diagram').appendChild(svg);
+  } catch (err) {
+    document.getElementById('diagram').innerHTML = '<pre style="color:crimson">Render failed: '+err+'</pre>';
+    console.error(err);
+  }
+})();
+</script>
+
+{% endblock %}
