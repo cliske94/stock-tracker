@@ -97,11 +97,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy only requirements first for Docker layer caching
 COPY ./django_help/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Install requirements and Gunicorn for production WSGI serving
+RUN pip install --no-cache-dir -r /app/requirements.txt gunicorn
 
 # Copy django help site sources
 COPY ./django_help /app
 
 EXPOSE 8001
-# Default for development: run migrations then start dev server
-CMD ["sh","-c","python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8001"]
+# Use Gunicorn to serve the Django WSGI app in production
+CMD ["sh","-c","python manage.py migrate --noinput && exec gunicorn --bind 0.0.0.0:8001 helpsite.wsgi:application --workers 3 --log-level info"]

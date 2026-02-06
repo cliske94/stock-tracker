@@ -1,0 +1,173 @@
+{
+  "generated": 1770359826400,
+  "nodes": [
+    {
+      "id": "ConfigMaps",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "IngressCtrl",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "NetPolicies",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "SvcAccounts",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "APIServer",
+      "repoPath": "services/finance_tracker/node_modules/node-addon-api",
+      "loc": 11124,
+      "imports": 0
+    },
+    {
+      "id": "Scheduler",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "ControllerMgr",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "HelpsiteDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "HelpsiteSvc",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "SpringDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "SpringSvc",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "CPPDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "CPPSvc",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "PythonGUIDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "PythonGUISvc",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "DashboardDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "DashboardSvc",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "LogCollectorDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "LogCollectorSvc",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "ThreeRendererDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "ThreeRendererSvc",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "PrometheusDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "GrafanaDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "LokiDep",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "PromtailDS",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "SQLite",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "OtherDBs",
+      "repoPath": "angular_ui/src",
+      "loc": 120,
+      "imports": 0
+    },
+    {
+      "id": "MQ",
+      "repoPath": "services/finance_tracker/node_modules/mquery",
+      "loc": 4986,
+      "imports": 0
+    }
+  ]
+}

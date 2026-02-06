@@ -1,0 +1,1 @@
+/home/cody/Projects/services/finance_tracker/wasm_examples/client_budget/target/wasm32-unknown-unknown/release/client_budget.wasm: /home/cody/Projects/services/finance_tracker/wasm_examples/client_budget/src/lib.rs

@@ -1,0 +1,28 @@
+body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:#f6f8fa;color:#121212;margin:0;padding:0}
+.container{max-width:900px;margin:28px auto;padding:20px;background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+h1{margin:0 0 12px}
+form{margin:8px 0 16px}
+input,select,button,textarea{padding:8px;border:1px solid #ddd;border-radius:6px;margin:6px 0;display:block;width:100%;box-sizing:border-box}
+.row{display:flex;gap:12px}
+.col{flex:1}
+.budgets{margin-top:12px}
+.budget{padding:12px;border:1px solid #eee;border-radius:6px;margin-bottom:8px;background:#fafafa}
+.small{font-size:0.9rem;color:#666}
+
+/* Header / Nav */
+.site-header{background:#0f1724;color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.site-brand{font-weight:700;font-size:1.1rem}
+.site-nav{display:flex;gap:12px;align-items:center}
+.site-nav a{color:rgba(255,255,255,0.9);text-decoration:none;padding:6px 10px;border-radius:6px}
+.site-nav a.active, .site-nav a:hover{background:rgba(255,255,255,0.06)}
+
+/* Footer */
+.site-footer{padding:12px 20px;text-align:center;color:#666;font-size:0.9rem}
+
+/* Buttons and controls */
+.btn{display:inline-block;padding:8px 12px;border-radius:6px;border:0;background:#0b72ff;color:#fff;cursor:pointer}
+.btn.secondary{background:#f3f4f6;color:#111}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+
+/* Responsive tweaks */
+@media(max-width:700px){.row{flex-direction:column}.container{margin:12px;padding:12px}}

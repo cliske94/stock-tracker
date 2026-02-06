@@ -1,0 +1,3 @@
+# HELP angular_ui_heartbeat Heartbeat metric for angular_ui
+# TYPE angular_ui_heartbeat gauge
+angular_ui_heartbeat 1

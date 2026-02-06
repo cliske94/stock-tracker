@@ -42,7 +42,25 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+            - name: app-logs
+              mountPath: /var/log/dashboard
+        - name: log-sidecar
+          image: local/log-sidecar:latest
+          env:
+            - name: APP_NAME
+              value: "dashboard"
+            - name: LOG_PATH
+              value: "/var/log/dashboard/dashboard.log"
+            - name: COLLECTOR_URL
+              value: "http://log-collector.default.svc.cluster.local:5000/ingest"
+            - name: REPORT_INTERVAL
+              value: "60"
+          volumeMounts:
+            - name: app-logs
+              mountPath: /var/log/dashboard
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: dashboard-pvc
+        - name: app-logs
+          emptyDir: {}

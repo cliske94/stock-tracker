@@ -1,0 +1,15 @@
+{
+  "name": "client_budget",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "client_budget_bg.wasm",
+    "client_budget.js",
+    "client_budget.d.ts"
+  ],
+  "main": "client_budget.js",
+  "types": "client_budget.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

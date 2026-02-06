@@ -1,0 +1,15 @@
+{
+  "name": "k8s-architecture-ui",
+  "version": "1.0.0",
+  "description": "Small Node.js server that serves the Kubernetes architecture Mermaid HTML with logging and Prometheus metrics",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "morgan": "^1.10.0",
+    "winston": "^3.8.2",
+    "prom-client": "^14.0.1"
+  }
+}

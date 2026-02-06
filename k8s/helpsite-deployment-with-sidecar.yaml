@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helpsite
+  labels:
+    app: helpsite
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helpsite
+  template:
+    metadata:
+      labels:
+        app: helpsite
+    spec:
+      containers:
+        - name: helpsite
+          # Use the built helpsite image which includes the application
+          image: local/helpsite:latest
+          command: ["sh","-c","pip install -r /app/requirements.txt && python /app/manage.py migrate && python /app/manage.py runserver 0.0.0.0:8001"]
+          env:
+            - name: LOG_PATH
+              value: "/var/log/helpsite/helpsite.log"
+          volumeMounts:
+            - name: helpsite-logs
+              mountPath: /var/log/helpsite
+            # removed helpsite-app mount so the container can use the image's /app
+        - name: log-sidecar
+          image: local/log-sidecar:latest
+          env:
+            - name: APP_NAME
+              value: "helpsite"
+            - name: LOG_PATH
+              value: "/var/log/helpsite/helpsite.log"
+            - name: COLLECTOR_URL
+              value: "http://log-collector.default.svc.cluster.local:5000/ingest"
+            - name: REPORT_INTERVAL
+              value: "10"
+          volumeMounts:
+            - name: helpsite-logs
+              mountPath: /var/log/helpsite
+      volumes:
+        - name: helpsite-logs
+          emptyDir: {}
+        # NOTE: removed helpsite-app emptyDir to avoid hiding the image's /app contents
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: helpsite
+  labels:
+    app: helpsite
+spec:
+  selector:
+    app: helpsite
+  ports:
+    - port: 8001
+      targetPort: 8001
+      protocol: TCP
+  type: ClusterIP

@@ -10,6 +10,87 @@ data:
     {
       "dashboard": {
         "id": null,
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-app-dashboards
+  labels:
+    app: grafana
+data:
+  app_metrics_dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "uid": "app-metrics",
+        "title": "Application Metrics by Job",
+        "panels": [
+          {
+            "type": "stat",
+            "title": "Total Services Up",
+            "gridPos": {"x":0,"y":0,"w":6,"h":4},
+            "targets": [{"expr":"sum(up)","refId":"A"}]
+          },
+          {
+            "type": "graph",
+            "title": "Requests rate (5m) by job",
+            "gridPos": {"x":6,"y":0,"w":12,"h":6},
+            "targets": [{"expr":"sum by (job)(rate(http_requests_total[5m]))","refId":"A"}]
+          },
+          {
+            "type": "graph",
+            "title": "Error rate (5m) by job",
+            "gridPos": {"x":0,"y":4,"w":12,"h":6},
+            "targets": [{"expr":"sum by (job)(rate(http_requests_total{code=~\"5..\"}[5m]))","refId":"A"}]
+          },
+          {
+            "type": "table",
+            "title": "Per-Service Latest Metrics",
+            "gridPos": {"x":0,"y":10,"w":18,"h":8},
+            "targets": [
+              {"expr":"topk(10, sum by (job)(rate(http_requests_total[5m])))","refId":"A"},
+              {"expr":"topk(10, sum by (job)(rate(http_requests_total{code=~\"5..\"}[5m])))","refId":"B"}
+            ]
+          }
+          ,
+          {
+            "type": "graph",
+            "title": "Log Lines Rate by App (5m)",
+            "gridPos": {"x":0,"y":18,"w":18,"h":6},
+            "targets": [
+              {"expr":"sum by (app)(rate(log_lines_total[5m]))","refId":"A"}
+            ]
+          }
+          ,
+          {
+            "type": "stat",
+            "title": "Total Log Lines (all apps)",
+            "gridPos": {"x":18,"y":18,"w":6,"h":3},
+            "targets": [
+              {"expr":"sum(log_lines_total)","refId":"A"}
+            ]
+          },
+          {
+            "type": "table",
+            "title": "Log Lines by App (total)",
+            "gridPos": {"x":18,"y":21,"w":6,"h":3},
+            "targets": [
+              {"expr":"topk(20, sum by (app)(log_lines_total))","refId":"A"}
+            ]
+          }
+        ],
+        "schemaVersion": 30,
+        "version": 1,
+        "links": [
+          {"title":"Prometheus UI","type":"link","url":"http://localhost:9090","target":"_blank"},
+          {"title":"Helpsite","type":"link","url":"http://localhost:8001/help/","target":"_blank"},
+          {"title":"Backend","type":"link","url":"http://localhost:8080","target":"_blank"}
+        ]
+      },
+      "overwrite": true
+    }
+
         "uid": "service-metrics",
         "title": "Service Metrics",
         "panels": [
@@ -36,6 +117,77 @@ data:
           }
         ],
         "schemaVersion": 30,
-        "version": 1
+        "version": 1,
+        "links": [
+          {"title":"Finance UI","type":"link","url":"http://localhost:4000","target":"_blank"},
+          {"title":"Dashboard Service","type":"link","url":"http://localhost:8086","target":"_blank"},
+          {"title":"Prometheus UI","type":"link","url":"http://localhost:9090","target":"_blank"},
+          {"title":"C++ Stock UI (backend)","type":"link","url":"http://localhost:8080","target":"_blank"},
+          {"title":"Python Watchlist GUI (backend)","type":"link","url":"http://localhost:8080","target":"_blank"},
+          {"title":"Helpsite","type":"link","url":"http://localhost:8001/help/","target":"_blank"},
+          {"title":"Backend","type":"link","url":"http://localhost:8080","target":"_blank"}
+        ]
       },
       "overwrite": true
+
+    }
+
+  # Add Helpsite link
+  helpsite.json: |
+    {
+      "dashboard": {
+        "id": null,
+  # Helpsite logs dashboard (uses Loki datasource named 'Loki')
+  helpsite-logs.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "uid": "helpsite-logs",
+        "title": "Helpsite Logs",
+        "panels": [
+          {
+            "type": "logs",
+            "title": "Helpsite Recent Logs",
+            "gridPos": {"x":0,"y":0,"w":24,"h":8},
+            "targets": [
+              {
+                "expr": "{job=\"helpsite\"}",
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "Loki"
+                }
+              }
+            ]
+          },
+          {
+            "type": "graph",
+            "title": "Helpsite Log Rate (5m)",
+            "gridPos": {"x":0,"y":8,"w":24,"h":6},
+            "targets": [
+              {
+                "expr": "sum(rate({job=\"helpsite\"}[5m]))",
+                "refId": "A",
+                "datasource": {
+                  "type": "loki",
+                  "uid": "Loki"
+                }
+              }
+            ]
+          }
+        ],
+        "schemaVersion": 30,
+        "version": 1,
+        "overwrite": true
+      }
+    }
+
+        "uid": "helpsite-links",
+        "title": "Helpsite Links",
+        "panels": [],
+        "links": [
+          {"title":"Helpsite","type":"link","url":"http://localhost:8001/help/","target":"_blank"}
+        ]
+      },
+      "overwrite": true
+    }

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kubernetes Architecture — Mermaid</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+    window.mermaid = mermaid;
+  </script>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial;padding:12px;margin:0}
+    .wrap{max-width:1400px;margin:16px auto}
+    .mermaid{background:#fff;border:1px solid #eee;padding:18px;border-radius:6px;overflow:auto}
+    .mermaid svg{width:100% !important;height:900px !important}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Kubernetes Architecture (Mermaid)</h1>
+    <section id="services" style="margin-bottom:18px">
+      <h2>Services & Local Ports</h2>
+      <p>Quick links to services running in this workspace (opens new tab):</p>
+      <div id="service-tree">
+        <ul>
+          <li><a href="http://localhost:4200/" target="_blank">Angular UI (this page) — 4200</a></li>
+          <li><a href="http://localhost:8088/" target="_blank">Node k8s UI — 8088</a></li>
+          <li>Backends
+            <ul>
+              <li><a href="http://localhost:8080/" target="_blank">Spring backend — 8080</a></li>
+              <li><a href="http://localhost:8001/" target="_blank">Helpsite (Django) — 8001</a></li>
+              <li><a href="http://localhost:8085/" target="_blank">Dashboard service — 8085</a></li>
+            </ul>
+          </li>
+          <li>Observability
+            <ul>
+              <li><a href="http://localhost:9090/" target="_blank">Prometheus — 9090</a></li>
+              <li><a href="http://localhost:3000/" target="_blank">Grafana — 3000</a></li>
+              <li><a href="http://localhost:3100/" target="_blank">Loki (if exposed) — 3100</a></li>
+            </ul>
+          </li>
+          <li>Log & UI helpers
+            <ul>
+              <li><a href="http://localhost:5000/" target="_blank">Log Collector — 5000</a></li>
+              <li><a href="http://localhost:6080/vnc.html" target="_blank">Python GUI (noVNC) — 6080</a></li>
+              <li><a href="http://localhost:6082/" target="_blank">CPP UI (web proxy) — 6082</a></li>
+              <li><a href="http://localhost:9090/internal/healthcheck" target="_blank">CPP Health — 9090</a></li>
+              <li><a href="http://localhost:19092/" target="_blank">Three Renderer (port-forward) — 19092</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </section>
+    <section id="health" style="margin-bottom:18px">
+      <h2>Live Health</h2>
+      <p>Automatic reachability checks (poll every 15s). Green = reachable, red = unreachable.</p>
+      <div id="health-badges" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </section>
+    <div class="mermaid">
+flowchart TD
+  subgraph Cluster["Kubernetes Cluster"]
+    direction TB
+
+    subgraph CP["Control Plane"]
+      APIServer[API Server]
+      Scheduler[Scheduler]
+      ControllerMgr[Controller Manager]
+    end
+
+    subgraph Nodes["Worker Nodes (Pods, Deployments, Services)"]
+      direction LR
+
+      subgraph Apps["Application Workloads"]
+        direction TB
+        HelpsiteDep["Deployment: helpsite\n(Django)"]
+        HelpsiteSvc["Service: helpsite"]
+        SpringDep["Deployment: spring-backend\n(Spring Boot)"]
+        SpringSvc["Service: spring-backend"]
+        CPPDep["Deployment: cpp-stock-ui-sidecar\n(C++ app + log-sidecar)"]
+        CPPSvc["Service: cpp-stock-ui-sidecar"]
+        PythonGUIDep["Deployment: python-watchlist-gui\n(Python GUI)"]
+        PythonGUISvc["Service: python-watchlist-gui"]
+        DashboardDep["Deployment: dashboard-service\n(Flask)"]
+        DashboardSvc["Service: dashboard"]
+        LogCollectorDep["Deployment: log-collector\n(Python/Flask)"]
+        LogCollectorSvc["Service: log-collector"]
+      end
+
+      subgraph Observability["Observability"]
+        PrometheusDep["Prometheus\n(Deployment/Service)"]
+        GrafanaDep["Grafana\n(Deployment/Service)"]
+        LokiDep["Loki\n(Deployment/Service)"]
+        PromtailDS["Promtail\n(DaemonSet)"]
+      end
+    end
+
+    ConfigMaps["ConfigMaps / Secrets\n(e.g. cpp-stock-ui-secret, loki-config)"]
+    IngressCtrl["Ingress Controller / Ingress"]
+    NetPolicies["Network Policies (conceptual)"]
+    SvcAccounts["ServiceAccounts (per-service)"]
+
+    subgraph Storage["Data & Messaging"]
+      SQLite["SQLite (local files)\n(e.g. spring_hello_world data/stocks.db)"]
+      OtherDBs["External DBs (none detected)"]
+      MQ["Message Queue (none detected)"]
+    end
+  end
+
+  IngressCtrl -->|HTTP| HelpsiteSvc
+  IngressCtrl -->|HTTP| DashboardSvc
+  IngressCtrl -->|HTTP| PythonGUISvc
+  IngressCtrl -->|HTTP| ThreeRendererSvc
+
+  HelpsiteDep --> HelpsiteSvc
+  SpringDep --> SpringSvc
+  CPPDep --> CPPSvc
+  PythonGUIDep --> PythonGUISvc
+  DashboardDep --> DashboardSvc
+  LogCollectorDep --> LogCollectorSvc
+
+  CPPDep -->|writes logs| LogCollectorSvc
+  PromtailDS -->|scrapes/forwards logs| LokiDep
+  LogCollectorSvc -->|exposes metrics| PrometheusDep
+  PrometheusDep -->|visualize data| GrafanaDep
+  LokiDep -->|stores logs| GrafanaDep
+
+  ConfigMaps --> HelpsiteDep
+  ConfigMaps --> CPPDep
+  ConfigMaps --> LokiDep
+  SvcAccounts --> HelpsiteDep
+  SvcAccounts --> SpringDep
+  SvcAccounts --> CPPDep
+  NetPolicies -.->|restrict traffic| Apps
+
+  SQLite --> SpringDep
+  SQLite --> HelpsiteDep
+
+  CP --> APIServer
+  APIServer --> Nodes
+    </div>
+  </div>
+  <script>
+    (function(){
+      const services = [
+        {name:'Angular UI', url:'http://localhost:4200/'},
+        {name:'Node k8s UI', url:'http://localhost:8088/'},
+        {name:'Spring backend', url:'http://localhost:8080/'},
+        {name:'Helpsite (Django)', url:'http://localhost:8001/'},
+        {name:'Dashboard service', url:'http://localhost:8085/'},
+        {name:'Prometheus', url:'http://localhost:9090/'},
+        {name:'Grafana', url:'http://localhost:3000/'},
+        {name:'Loki', url:'http://localhost:3100/'},
+        {name:'Log Collector', url:'http://localhost:5000/'},
+        {name:'Python GUI (noVNC)', url:'http://localhost:6080/vnc.html'},
+        {name:'CPP UI (web proxy)', url:'http://localhost:6082/'},
+        {name:'Three Renderer (port-forward)', url:'http://localhost:19092/'},
+      ];
+
+      const container = document.getElementById('health-badges');
+      function makeElem(s){
+        const el = document.createElement('div');
+        el.className = 'health-badge unknown';
+        el.style.minWidth = '220px';
+        el.style.padding = '8px';
+        el.style.borderRadius = '6px';
+        el.style.background = '#fafafa';
+        el.style.border = '1px solid #eee';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.gap = '8px';
+
+        const dot = document.createElement('span');
+        dot.className = 'status-dot unknown';
+        dot.style.width='12px'; dot.style.height='12px'; dot.style.borderRadius='50%'; dot.style.background='#999';
+
+        const label = document.createElement('div');
+        label.style.flex='1';
+        label.innerHTML = `<strong>${s.name}</strong><br/><small style="color:#666">${s.url}</small>`;
+
+        const code = document.createElement('div');
+        code.className='status-code';
+        code.style.minWidth='60px';
+        code.style.textAlign='right';
+        code.style.fontFamily='monospace';
+        code.textContent='...';
+
+        el.appendChild(dot);
+        el.appendChild(label);
+        el.appendChild(code);
+        container.appendChild(el);
+        return {el,dot,code,s};
+      }
+
+      const items = services.map(makeElem);
+
+      async function checkOne(item){
+        const {s,dot,code} = item;
+        const controller = new AbortController();
+        const timeout = setTimeout(()=>controller.abort(),3000);
+        try{
+          // use no-cors so the request resolves on reachable hosts even if CORS not enabled
+          await fetch(s.url, {method:'GET', mode:'no-cors', signal:controller.signal});
+          dot.style.background='#28a745';
+          code.textContent='OK';
+        }catch(e){
+          dot.style.background='#dc3545';
+          code.textContent='ERR';
+        }finally{ clearTimeout(timeout); }
+      }
+
+      function checkAll(){ items.forEach(it=>checkOne(it)); }
+      checkAll();
+      setInterval(checkAll,15000);
+    })();
+  </script>
+</body>
+</html>

@@ -14,10 +14,9 @@ spec:
     spec:
       containers:
         - name: app
-          image: cpp-stock-ui:latest
+          image: cliske01/cpp-stock-ui:latest
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 5901
-              name: vnc
             - containerPort: 9090
               name: health
           env:
@@ -39,25 +38,28 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
-        - name: novnc-sidecar
-          image: novnc/websockify:latest
-          # this image is illustrative; you may prefer to use your own websockify/noVNC image
-          ports:
-            - containerPort: 6082
-              name: novnc
+          volumeMounts:
+            - name: app-logs
+              mountPath: /var/log
+        - name: log-sidecar
+          image: local/log-sidecar:latest
+          imagePullPolicy: IfNotPresent
           env:
-            - name: TARGET_HOST
-              value: "127.0.0.1"
-            - name: TARGET_PORT
-              value: "5901"
-          # sidecar readiness could check its web root
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 6082
-            initialDelaySeconds: 3
-            periodSeconds: 10
-      restartPolicy: Always
+            - name: APP_NAME
+              value: "cpp-stock-ui"
+            - name: LOG_PATH
+              value: "/var/log/app.log"
+            - name: COLLECTOR_URL
+              value: "http://log-collector.default.svc.cluster.local:5000/ingest"
+            - name: REPORT_INTERVAL
+              value: "60"
+          volumeMounts:
+            - name: app-logs
+              mountPath: /var/log
+      volumes:
+        - name: app-logs
+          emptyDir: {}
+
 ---
 apiVersion: v1
 kind: Service
@@ -67,7 +69,7 @@ spec:
   selector:
     app: cpp-stock-ui-sidecar
   ports:
-    - name: novnc
-      port: 6082
-      targetPort: 6082
+    - name: health
+      port: 9090
+      targetPort: 9090
   type: ClusterIP

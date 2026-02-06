@@ -1,0 +1,1 @@
+/home/cody/Projects/services/finance_tracker/wasm_examples/server_currency/target/wasm32-wasip1/release/server_currency.wasm: /home/cody/Projects/services/finance_tracker/wasm_examples/server_currency/src/lib.rs

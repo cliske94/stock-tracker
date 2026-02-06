@@ -1,0 +1,495 @@
+{
+  "nodes": [
+    {
+      "id": "ConfigMaps",
+      "label": "\"ConfigMaps / Secrets\\n(e.g. cpp-stock-ui-secret, loki-config",
+      "type": null,
+      "name": "\"ConfigMaps / Secrets\\n(e.g. cpp-stock-ui-secret, loki-config",
+      "subgraph": "Kubernetes Cluster",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "IngressCtrl",
+      "label": "\"Ingress Controller / Ingress\"",
+      "type": null,
+      "name": "\"Ingress Controller / Ingress\"",
+      "subgraph": "Kubernetes Cluster",
+      "position": [
+        0,
+        -3,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "NetPolicies",
+      "label": "\"Network Policies (conceptual",
+      "type": null,
+      "name": "\"Network Policies (conceptual",
+      "subgraph": "Kubernetes Cluster",
+      "position": [
+        0,
+        -6,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "SvcAccounts",
+      "label": "\"ServiceAccounts (per-service",
+      "type": null,
+      "name": "\"ServiceAccounts (per-service",
+      "subgraph": "Kubernetes Cluster",
+      "position": [
+        0,
+        -9,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "APIServer",
+      "label": "API Server",
+      "type": null,
+      "name": "API Server",
+      "subgraph": "Control Plane",
+      "position": [
+        4,
+        0,
+        0
+      ],
+      "repo": "services/finance_tracker/node_modules/node-addon-api",
+      "lang": "javascript"
+    },
+    {
+      "id": "Scheduler",
+      "label": "Scheduler",
+      "type": null,
+      "name": "Scheduler",
+      "subgraph": "Control Plane",
+      "position": [
+        4,
+        -3,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "ControllerMgr",
+      "label": "Controller Manager",
+      "type": null,
+      "name": "Controller Manager",
+      "subgraph": "Control Plane",
+      "position": [
+        4,
+        -6,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "HelpsiteDep",
+      "label": "\"Deployment: helpsite\\n(Django",
+      "type": null,
+      "name": "\"Deployment: helpsite\\n(Django",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        0,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "HelpsiteSvc",
+      "label": "\"Service: helpsite\"",
+      "type": null,
+      "name": "\"Service: helpsite\"",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -3,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "SpringDep",
+      "label": "\"Deployment: spring-backend\\n(Spring Boot",
+      "type": null,
+      "name": "\"Deployment: spring-backend\\n(Spring Boot",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -6,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "SpringSvc",
+      "label": "\"Service: spring-backend\"",
+      "type": null,
+      "name": "\"Service: spring-backend\"",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -9,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "CPPDep",
+      "label": "\"Deployment: cpp-stock-ui-sidecar\\n(C++ app + log-sidecar",
+      "type": null,
+      "name": "\"Deployment: cpp-stock-ui-sidecar\\n(C++ app + log-sidecar",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -12,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "CPPSvc",
+      "label": "\"Service: cpp-stock-ui-sidecar\"",
+      "type": null,
+      "name": "\"Service: cpp-stock-ui-sidecar\"",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -15,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "PythonGUIDep",
+      "label": "\"Deployment: python-watchlist-gui\\n(Python GUI",
+      "type": null,
+      "name": "\"Deployment: python-watchlist-gui\\n(Python GUI",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -18,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "PythonGUISvc",
+      "label": "\"Service: python-watchlist-gui\"",
+      "type": null,
+      "name": "\"Service: python-watchlist-gui\"",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -21,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "DashboardDep",
+      "label": "\"Deployment: dashboard-service\\n(Flask",
+      "type": null,
+      "name": "\"Deployment: dashboard-service\\n(Flask",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -24,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "DashboardSvc",
+      "label": "\"Service: dashboard\"",
+      "type": null,
+      "name": "\"Service: dashboard\"",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -27,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "LogCollectorDep",
+      "label": "\"Deployment: log-collector\\n(Python/Flask",
+      "type": null,
+      "name": "\"Deployment: log-collector\\n(Python/Flask",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -30,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "LogCollectorSvc",
+      "label": "\"Service: log-collector\"",
+      "type": null,
+      "name": "\"Service: log-collector\"",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -33,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "ThreeRendererDep",
+      "label": "\"Deployment: three-renderer\\n(Node/Express",
+      "type": null,
+      "name": "\"Deployment: three-renderer\\n(Node/Express",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -36,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "ThreeRendererSvc",
+      "label": "\"Service: three-renderer\"",
+      "type": null,
+      "name": "\"Service: three-renderer\"",
+      "subgraph": "Application Workloads",
+      "position": [
+        12,
+        -39,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "PrometheusDep",
+      "label": "\"Prometheus\\n(Deployment/Service",
+      "type": null,
+      "name": "\"Prometheus\\n(Deployment/Service",
+      "subgraph": "Observability",
+      "position": [
+        16,
+        0,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "GrafanaDep",
+      "label": "\"Grafana\\n(Deployment/Service",
+      "type": null,
+      "name": "\"Grafana\\n(Deployment/Service",
+      "subgraph": "Observability",
+      "position": [
+        16,
+        -3,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "LokiDep",
+      "label": "\"Loki\\n(Deployment/Service",
+      "type": null,
+      "name": "\"Loki\\n(Deployment/Service",
+      "subgraph": "Observability",
+      "position": [
+        16,
+        -6,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "PromtailDS",
+      "label": "\"Promtail\\n(DaemonSet",
+      "type": null,
+      "name": "\"Promtail\\n(DaemonSet",
+      "subgraph": "Observability",
+      "position": [
+        16,
+        -9,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "SQLite",
+      "label": "\"SQLite (local files",
+      "type": null,
+      "name": "\"SQLite (local files",
+      "subgraph": "Data & Messaging",
+      "position": [
+        20,
+        0,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "OtherDBs",
+      "label": "\"External DBs (none detected",
+      "type": null,
+      "name": "\"External DBs (none detected",
+      "subgraph": "Data & Messaging",
+      "position": [
+        20,
+        -3,
+        0
+      ],
+      "repo": "angular_ui/src"
+    },
+    {
+      "id": "MQ",
+      "label": "\"Message Queue (none detected",
+      "type": null,
+      "name": "\"Message Queue (none detected",
+      "subgraph": "Data & Messaging",
+      "position": [
+        20,
+        -6,
+        0
+      ],
+      "repo": "services/finance_tracker/node_modules/mquery",
+      "lang": "javascript"
+    }
+  ],
+  "edges": [
+    {
+      "from": "IngressCtrl",
+      "to": "HelpsiteSvc",
+      "label": "HTTP"
+    },
+    {
+      "from": "IngressCtrl",
+      "to": "DashboardSvc",
+      "label": "HTTP"
+    },
+    {
+      "from": "IngressCtrl",
+      "to": "PythonGUISvc",
+      "label": "HTTP"
+    },
+    {
+      "from": "IngressCtrl",
+      "to": "ThreeRendererSvc",
+      "label": "HTTP"
+    },
+    {
+      "from": "HelpsiteDep",
+      "to": "HelpsiteSvc"
+    },
+    {
+      "from": "SpringDep",
+      "to": "SpringSvc"
+    },
+    {
+      "from": "CPPDep",
+      "to": "CPPSvc"
+    },
+    {
+      "from": "PythonGUIDep",
+      "to": "PythonGUISvc"
+    },
+    {
+      "from": "DashboardDep",
+      "to": "DashboardSvc"
+    },
+    {
+      "from": "LogCollectorDep",
+      "to": "LogCollectorSvc"
+    },
+    {
+      "from": "CPPDep",
+      "to": "LogCollectorSvc",
+      "label": "writes logs"
+    },
+    {
+      "from": "PromtailDS",
+      "to": "LokiDep",
+      "label": "scrapes/forwards logs"
+    },
+    {
+      "from": "LogCollectorSvc",
+      "to": "PrometheusDep",
+      "label": "exposes metrics"
+    },
+    {
+      "from": "PrometheusDep",
+      "to": "GrafanaDep",
+      "label": "visualize data"
+    },
+    {
+      "from": "LokiDep",
+      "to": "GrafanaDep",
+      "label": "stores logs"
+    },
+    {
+      "from": "ConfigMaps",
+      "to": "HelpsiteDep"
+    },
+    {
+      "from": "ConfigMaps",
+      "to": "CPPDep"
+    },
+    {
+      "from": "ConfigMaps",
+      "to": "LokiDep"
+    },
+    {
+      "from": "SvcAccounts",
+      "to": "HelpsiteDep"
+    },
+    {
+      "from": "SvcAccounts",
+      "to": "SpringDep"
+    },
+    {
+      "from": "SvcAccounts",
+      "to": "CPPDep"
+    },
+    {
+      "from": "NetPolicies",
+      "to": "Apps",
+      "label": "restrict traffic"
+    },
+    {
+      "from": "SQLite",
+      "to": "SpringDep"
+    },
+    {
+      "from": "SQLite",
+      "to": "HelpsiteDep"
+    },
+    {
+      "from": "CP",
+      "to": "APIServer"
+    },
+    {
+      "from": "APIServer",
+      "to": "Nodes"
+    }
+  ],
+  "columns": [
+    "Kubernetes Cluster",
+    "Control Plane",
+    "Worker Nodes (Pods, Deployments, Services)",
+    "Application Workloads",
+    "Observability",
+    "Data & Messaging",
+    "_default_"
+  ]
+}

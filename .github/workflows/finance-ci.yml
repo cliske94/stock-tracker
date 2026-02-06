@@ -1,0 +1,31 @@
+name: Finance Service CI
+
+on:
+  push:
+    paths:
+      - 'services/finance_tracker/**'
+  pull_request:
+    paths:
+      - 'services/finance_tracker/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        working-directory: services/finance_tracker
+        run: npm ci --no-audit --prefer-offline
+      - name: Run lint (if present)
+        working-directory: services/finance_tracker
+        run: |
+          if [ -f package.json ]; then
+            echo "No lint configured; skipping"
+          fi
+      - name: Build Docker image
+        working-directory: services/finance_tracker
+        run: docker build -t finance-tracker:ci .

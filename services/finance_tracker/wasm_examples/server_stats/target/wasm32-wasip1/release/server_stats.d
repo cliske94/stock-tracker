@@ -1,0 +1,1 @@
+/home/cody/Projects/services/finance_tracker/wasm_examples/server_stats/target/wasm32-wasip1/release/server_stats.wasm: /home/cody/Projects/services/finance_tracker/wasm_examples/server_stats/src/lib.rs

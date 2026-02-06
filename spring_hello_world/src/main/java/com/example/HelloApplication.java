@@ -5,6 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.context.event.EventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,17 +22,26 @@ import java.net.http.HttpResponse;
 @SpringBootApplication
 @EnableScheduling
 public class HelloApplication {
+    private static final Logger logger = LoggerFactory.getLogger(HelloApplication.class);
     public static void main(String[] args) {
+        logger.info("Starting HelloApplication with args: {}", (Object)args);
         SpringApplication.run(HelloApplication.class, args);
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void onReady() {
+        logger.info("HelloApplication started and ready to accept requests");
     }
 
     @RestController
     public static class StocksController {
+        private static final Logger logger = LoggerFactory.getLogger(StocksController.class);
         private static final String API_URL = "https://api.nasdaq.com/api/screener/stocks?tableonly=true&limit=10&exchange=NASDAQ";
 
         @GetMapping("/")
         public String index() {
             try {
+                logger.info("Received index request");
                 HttpClient client = HttpClient.newBuilder().build();
                 HttpRequest req = HttpRequest.newBuilder()
                         .uri(URI.create(API_URL))
@@ -65,8 +79,10 @@ public class HelloApplication {
                 sb.append("</script>");
                 sb.append("<div style='margin-top:16px;'><input id='q' placeholder='Ticker'/> <button onclick=searchTicker()>Search</button><pre id='result'></pre></div>");
                 sb.append("</html>");
+                logger.info("Index handler returning page with {} rows", rows.size());
                 return sb.toString();
             } catch (Exception e) {
+                logger.error("Error in index handler", e);
                 return "<html><body><h1>Error</h1><pre>" + e.getMessage() + "</pre></body></html>";
             }
         }

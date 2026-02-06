@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-collector
+  labels:
+    app: log-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-collector
+  template:
+    metadata:
+      labels:
+        app: log-collector
+    spec:
+      containers:
+        - name: collector
+          image: local/log-collector:latest
+          ports:
+            - containerPort: 5000
+          volumeMounts: []
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: log-collector
+  labels:
+    app: log-collector
+spec:
+  selector:
+    app: log-collector
+  ports:
+    - port: 5000
+      targetPort: 5000
+  type: ClusterIP

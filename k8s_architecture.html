@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kubernetes Architecture - Mermaid</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    window.mermaid = mermaid;
+  </script>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:24px}
+    .container{max-width:1400px;margin:auto}
+    pre.doc{background:#f7f7f8;border-radius:6px;padding:16px;white-space:pre-wrap}
+    .mermaid{background:#fff;border:1px solid #eee;padding:18px;border-radius:6px;overflow:auto}
+    /* Make the mermaid SVG large and responsive */
+    .mermaid svg{width:100% !important;height:900px !important}
+    /* Increase default font-size inside the diagram for readability */
+    .mermaid {font-size:16px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kubernetes Architecture (visual)</h1>
+
+    <div class="mermaid">
+flowchart TD
+  subgraph Cluster["Kubernetes Cluster"]
+    direction TB
+
+    subgraph CP["Control Plane"]
+      APIServer[API Server]
+      Scheduler[Scheduler]
+      ControllerMgr[Controller Manager]
+    end
+
+    subgraph Nodes["Worker Nodes (Pods, Deployments, Services)"]
+      direction LR
+
+      subgraph Apps["Application Workloads"]
+        direction TB
+        HelpsiteDep["Deployment: helpsite\n(Django)"]
+        HelpsiteSvc["Service: helpsite"]
+        SpringDep["Deployment: spring-backend\n(Spring Boot)"]
+        SpringSvc["Service: spring-backend"]
+        CPPDep["Deployment: cpp-stock-ui-sidecar\n(C++ app + log-sidecar)"]
+        CPPSvc["Service: cpp-stock-ui-sidecar"]
+        PythonGUIDep["Deployment: python-watchlist-gui\n(Python GUI)"]
+        PythonGUISvc["Service: python-watchlist-gui"]
+        DashboardDep["Deployment: dashboard-service\n(Flask)"]
+        DashboardSvc["Service: dashboard"]
+        LogCollectorDep["Deployment: log-collector\n(Python/Flask)"]
+        LogCollectorSvc["Service: log-collector"]
+      end
+
+      subgraph Observability["Observability"]
+        PrometheusDep["Prometheus\n(Deployment/Service)"]
+        GrafanaDep["Grafana\n(Deployment/Service)"]
+        LokiDep["Loki\n(Deployment/Service)"]
+        PromtailDS["Promtail\n(DaemonSet)"]
+      end
+    end
+
+    ConfigMaps["ConfigMaps / Secrets\n(e.g. cpp-stock-ui-secret, loki-config)"]
+    IngressCtrl["Ingress Controller / Ingress"]
+    NetPolicies["Network Policies (conceptual)"]
+    SvcAccounts["ServiceAccounts (per-service)"]
+
+    subgraph Storage["Data & Messaging"]
+      SQLite["SQLite (local files)\n(e.g. spring_hello_world data/stocks.db)"]
+      OtherDBs["External DBs (none detected)"]
+      MQ["Message Queue (none detected)"]
+    end
+  end
+
+  %% Connections: ingress -> services
+  IngressCtrl -->|HTTP| HelpsiteSvc
+  IngressCtrl -->|HTTP| DashboardSvc
+  IngressCtrl -->|HTTP| PythonGUISvc
+
+  %% Apps -> Services (Deployments exposed by Services)
+  HelpsiteDep --> HelpsiteSvc
+  SpringDep --> SpringSvc
+  CPPDep --> CPPSvc
+  PythonGUIDep --> PythonGUISvc
+  DashboardDep --> DashboardSvc
+  LogCollectorDep --> LogCollectorSvc
+
+  %% Apps -> infra interactions
+  CPPDep -->|writes logs| LogCollectorSvc
+  PromtailDS -->|scrapes/forwards logs| LokiDep
+  LogCollectorSvc -->|exposes metrics| PrometheusDep
+  PrometheusDep -->|visualize data| GrafanaDep
+  LokiDep -->|stores logs| GrafanaDep
+
+  %% Configs and security
+  ConfigMaps --> HelpsiteDep
+  ConfigMaps --> CPPDep
+  ConfigMaps --> LokiDep
+  SvcAccounts --> HelpsiteDep
+  SvcAccounts --> SpringDep
+  SvcAccounts --> CPPDep
+  NetPolicies -.->|restrict traffic| Apps
+
+  %% Storage links
+  SQLite --> SpringDep
+  SQLite --> HelpsiteDep
+
+  %% Control plane interactions
+  CP --> APIServer
+  APIServer --> Nodes
+    </div>
+
+    <h2>Documentation</h2>
+    <div class="doc">
+      <p>This repository follows a microservices-oriented architecture deployed on Kubernetes. The cluster runs multiple Deployments and a Promtail DaemonSet across worker nodes, with an Ingress Controller routing external HTTP traffic to frontend/backends. Each major service (helpsite, spring-backend, cpp-stock-ui-sidecar, python-watchlist-gui, dashboard-service, log-collector) is packaged as a Deployment and exposed via a Service; service accounts and ConfigMaps/Secrets provide per-service credentials and configuration.</p>
+
+      <p>Observability is implemented with Prometheus (metrics), Grafana (dashboards), Loki (log store), and Promtail (DaemonSet for log shipping). A custom <code>log-collector</code> ingests application logs and exposes metrics for scraping by Prometheus. Data storage is lightweight and local in this workspace (SQLite used by the Spring app); no external message queue or managed DB was detected. Technology stacks: Django (Python) for the helpsite, Spring Boot (Java) for backend services, C++ for the <code>cpp-stock-ui</code> with a log-sidecar, Python/Flask for <code>log-collector</code> and <code>dashboard-service</code>, and standard observability tools (Prometheus/Grafana/Loki/Promtail). Network policies and service accounts are used conceptually to enforce access control between services.</p>
+    </div>
+
+    <p style="margin-top:20px;font-size:0.9em;color:#666">Open this file in a browser to view the rendered Mermaid diagram. If the diagram does not render, try a different CDN URL or allow loading external modules.</p>
+  </div>
+</body>
+</html>

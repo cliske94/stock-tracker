@@ -1,0 +1,117 @@
+{
+  "generated": 1770359826311,
+  "nodes": [
+    {
+      "id": "ConfigMaps",
+      "history": []
+    },
+    {
+      "id": "IngressCtrl",
+      "history": []
+    },
+    {
+      "id": "NetPolicies",
+      "history": []
+    },
+    {
+      "id": "SvcAccounts",
+      "history": []
+    },
+    {
+      "id": "APIServer",
+      "history": []
+    },
+    {
+      "id": "Scheduler",
+      "history": []
+    },
+    {
+      "id": "ControllerMgr",
+      "history": []
+    },
+    {
+      "id": "HelpsiteDep",
+      "history": []
+    },
+    {
+      "id": "HelpsiteSvc",
+      "history": []
+    },
+    {
+      "id": "SpringDep",
+      "history": []
+    },
+    {
+      "id": "SpringSvc",
+      "history": []
+    },
+    {
+      "id": "CPPDep",
+      "history": []
+    },
+    {
+      "id": "CPPSvc",
+      "history": []
+    },
+    {
+      "id": "PythonGUIDep",
+      "history": []
+    },
+    {
+      "id": "PythonGUISvc",
+      "history": []
+    },
+    {
+      "id": "DashboardDep",
+      "history": []
+    },
+    {
+      "id": "DashboardSvc",
+      "history": []
+    },
+    {
+      "id": "LogCollectorDep",
+      "history": []
+    },
+    {
+      "id": "LogCollectorSvc",
+      "history": []
+    },
+    {
+      "id": "ThreeRendererDep",
+      "history": []
+    },
+    {
+      "id": "ThreeRendererSvc",
+      "history": []
+    },
+    {
+      "id": "PrometheusDep",
+      "history": []
+    },
+    {
+      "id": "GrafanaDep",
+      "history": []
+    },
+    {
+      "id": "LokiDep",
+      "history": []
+    },
+    {
+      "id": "PromtailDS",
+      "history": []
+    },
+    {
+      "id": "SQLite",
+      "history": []
+    },
+    {
+      "id": "OtherDBs",
+      "history": []
+    },
+    {
+      "id": "MQ",
+      "history": []
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-with-sidecar
+  labels:
+    app: example-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-app
+  template:
+    metadata:
+      labels:
+        app: example-app
+    spec:
+      volumes:
+        - name: app-logs
+          emptyDir: {}
+      containers:
+        - name: main-app
+          image: your-app-image:latest
+          # Ensure the process writes logs to /var/log/app.log (example entrypoint wrapper)
+          volumeMounts:
+            - name: app-logs
+              mountPath: /var/log
+        - name: log-sidecar
+          image: local/log-sidecar:latest
+          env:
+            - name: APP_NAME
+              value: "example-app"
+            - name: LOG_PATH
+              value: "/var/log/app.log"
+            - name: COLLECTOR_URL
+              value: "http://log-collector.default.svc.cluster.local:5000/ingest"
+            - name: REPORT_INTERVAL
+              value: "60"
+          volumeMounts:
+            - name: app-logs
+              mountPath: /var/log

@@ -1,0 +1,504 @@
+# ConfigMaps
+# name:"ConfigMaps / Secrets\n(e.g. cpp-stock-ui-secret, loki-config
+# subgraph:Kubernetes Cluster
+v -0.8 -0.8 -0.8
+v 0.8 -0.8 -0.8
+v 0.8 0.8 -0.8
+v -0.8 0.8 -0.8
+v -0.8 -0.8 0.8
+v 0.8 -0.8 0.8
+v 0.8 0.8 0.8
+v -0.8 0.8 0.8
+f 1 2 3 4
+f 5 8 7 6
+f 1 5 6 2
+f 2 6 7 3
+f 3 7 8 4
+f 5 1 4 8
+
+# IngressCtrl
+# name:"Ingress Controller / Ingress"
+# subgraph:Kubernetes Cluster
+v -0.8 -3.8 -0.8
+v 0.8 -3.8 -0.8
+v 0.8 -2.2 -0.8
+v -0.8 -2.2 -0.8
+v -0.8 -3.8 0.8
+v 0.8 -3.8 0.8
+v 0.8 -2.2 0.8
+v -0.8 -2.2 0.8
+f 9 10 11 12
+f 13 16 15 14
+f 9 13 14 10
+f 10 14 15 11
+f 11 15 16 12
+f 13 9 12 16
+
+# NetPolicies
+# name:"Network Policies (conceptual
+# subgraph:Kubernetes Cluster
+v -0.8 -6.8 -0.8
+v 0.8 -6.8 -0.8
+v 0.8 -5.2 -0.8
+v -0.8 -5.2 -0.8
+v -0.8 -6.8 0.8
+v 0.8 -6.8 0.8
+v 0.8 -5.2 0.8
+v -0.8 -5.2 0.8
+f 17 18 19 20
+f 21 24 23 22
+f 17 21 22 18
+f 18 22 23 19
+f 19 23 24 20
+f 21 17 20 24
+
+# SvcAccounts
+# name:"ServiceAccounts (per-service
+# subgraph:Kubernetes Cluster
+v -0.8 -9.8 -0.8
+v 0.8 -9.8 -0.8
+v 0.8 -8.2 -0.8
+v -0.8 -8.2 -0.8
+v -0.8 -9.8 0.8
+v 0.8 -9.8 0.8
+v 0.8 -8.2 0.8
+v -0.8 -8.2 0.8
+f 25 26 27 28
+f 29 32 31 30
+f 25 29 30 26
+f 26 30 31 27
+f 27 31 32 28
+f 29 25 28 32
+
+# APIServer
+# name:API Server
+# subgraph:Control Plane
+v 3.2 -0.8 -0.8
+v 4.8 -0.8 -0.8
+v 4.8 0.8 -0.8
+v 3.2 0.8 -0.8
+v 3.2 -0.8 0.8
+v 4.8 -0.8 0.8
+v 4.8 0.8 0.8
+v 3.2 0.8 0.8
+f 33 34 35 36
+f 37 40 39 38
+f 33 37 38 34
+f 34 38 39 35
+f 35 39 40 36
+f 37 33 36 40
+
+# Scheduler
+# name:Scheduler
+# subgraph:Control Plane
+v 3.2 -3.8 -0.8
+v 4.8 -3.8 -0.8
+v 4.8 -2.2 -0.8
+v 3.2 -2.2 -0.8
+v 3.2 -3.8 0.8
+v 4.8 -3.8 0.8
+v 4.8 -2.2 0.8
+v 3.2 -2.2 0.8
+f 41 42 43 44
+f 45 48 47 46
+f 41 45 46 42
+f 42 46 47 43
+f 43 47 48 44
+f 45 41 44 48
+
+# ControllerMgr
+# name:Controller Manager
+# subgraph:Control Plane
+v 3.2 -6.8 -0.8
+v 4.8 -6.8 -0.8
+v 4.8 -5.2 -0.8
+v 3.2 -5.2 -0.8
+v 3.2 -6.8 0.8
+v 4.8 -6.8 0.8
+v 4.8 -5.2 0.8
+v 3.2 -5.2 0.8
+f 49 50 51 52
+f 53 56 55 54
+f 49 53 54 50
+f 50 54 55 51
+f 51 55 56 52
+f 53 49 52 56
+
+# HelpsiteDep
+# name:"Deployment: helpsite\n(Django
+# subgraph:Application Workloads
+v 11.2 -0.8 -0.8
+v 12.8 -0.8 -0.8
+v 12.8 0.8 -0.8
+v 11.2 0.8 -0.8
+v 11.2 -0.8 0.8
+v 12.8 -0.8 0.8
+v 12.8 0.8 0.8
+v 11.2 0.8 0.8
+f 57 58 59 60
+f 61 64 63 62
+f 57 61 62 58
+f 58 62 63 59
+f 59 63 64 60
+f 61 57 60 64
+
+# HelpsiteSvc
+# name:"Service: helpsite"
+# subgraph:Application Workloads
+v 11.2 -3.8 -0.8
+v 12.8 -3.8 -0.8
+v 12.8 -2.2 -0.8
+v 11.2 -2.2 -0.8
+v 11.2 -3.8 0.8
+v 12.8 -3.8 0.8
+v 12.8 -2.2 0.8
+v 11.2 -2.2 0.8
+f 65 66 67 68
+f 69 72 71 70
+f 65 69 70 66
+f 66 70 71 67
+f 67 71 72 68
+f 69 65 68 72
+
+# SpringDep
+# name:"Deployment: spring-backend\n(Spring Boot
+# subgraph:Application Workloads
+v 11.2 -6.8 -0.8
+v 12.8 -6.8 -0.8
+v 12.8 -5.2 -0.8
+v 11.2 -5.2 -0.8
+v 11.2 -6.8 0.8
+v 12.8 -6.8 0.8
+v 12.8 -5.2 0.8
+v 11.2 -5.2 0.8
+f 73 74 75 76
+f 77 80 79 78
+f 73 77 78 74
+f 74 78 79 75
+f 75 79 80 76
+f 77 73 76 80
+
+# SpringSvc
+# name:"Service: spring-backend"
+# subgraph:Application Workloads
+v 11.2 -9.8 -0.8
+v 12.8 -9.8 -0.8
+v 12.8 -8.2 -0.8
+v 11.2 -8.2 -0.8
+v 11.2 -9.8 0.8
+v 12.8 -9.8 0.8
+v 12.8 -8.2 0.8
+v 11.2 -8.2 0.8
+f 81 82 83 84
+f 85 88 87 86
+f 81 85 86 82
+f 82 86 87 83
+f 83 87 88 84
+f 85 81 84 88
+
+# CPPDep
+# name:"Deployment: cpp-stock-ui-sidecar\n(C++ app + log-sidecar
+# subgraph:Application Workloads
+v 11.2 -12.8 -0.8
+v 12.8 -12.8 -0.8
+v 12.8 -11.2 -0.8
+v 11.2 -11.2 -0.8
+v 11.2 -12.8 0.8
+v 12.8 -12.8 0.8
+v 12.8 -11.2 0.8
+v 11.2 -11.2 0.8
+f 89 90 91 92
+f 93 96 95 94
+f 89 93 94 90
+f 90 94 95 91
+f 91 95 96 92
+f 93 89 92 96
+
+# CPPSvc
+# name:"Service: cpp-stock-ui-sidecar"
+# subgraph:Application Workloads
+v 11.2 -15.8 -0.8
+v 12.8 -15.8 -0.8
+v 12.8 -14.2 -0.8
+v 11.2 -14.2 -0.8
+v 11.2 -15.8 0.8
+v 12.8 -15.8 0.8
+v 12.8 -14.2 0.8
+v 11.2 -14.2 0.8
+f 97 98 99 100
+f 101 104 103 102
+f 97 101 102 98
+f 98 102 103 99
+f 99 103 104 100
+f 101 97 100 104
+
+# PythonGUIDep
+# name:"Deployment: python-watchlist-gui\n(Python GUI
+# subgraph:Application Workloads
+v 11.2 -18.8 -0.8
+v 12.8 -18.8 -0.8
+v 12.8 -17.2 -0.8
+v 11.2 -17.2 -0.8
+v 11.2 -18.8 0.8
+v 12.8 -18.8 0.8
+v 12.8 -17.2 0.8
+v 11.2 -17.2 0.8
+f 105 106 107 108
+f 109 112 111 110
+f 105 109 110 106
+f 106 110 111 107
+f 107 111 112 108
+f 109 105 108 112
+
+# PythonGUISvc
+# name:"Service: python-watchlist-gui"
+# subgraph:Application Workloads
+v 11.2 -21.8 -0.8
+v 12.8 -21.8 -0.8
+v 12.8 -20.2 -0.8
+v 11.2 -20.2 -0.8
+v 11.2 -21.8 0.8
+v 12.8 -21.8 0.8
+v 12.8 -20.2 0.8
+v 11.2 -20.2 0.8
+f 113 114 115 116
+f 117 120 119 118
+f 113 117 118 114
+f 114 118 119 115
+f 115 119 120 116
+f 117 113 116 120
+
+# DashboardDep
+# name:"Deployment: dashboard-service\n(Flask
+# subgraph:Application Workloads
+v 11.2 -24.8 -0.8
+v 12.8 -24.8 -0.8
+v 12.8 -23.2 -0.8
+v 11.2 -23.2 -0.8
+v 11.2 -24.8 0.8
+v 12.8 -24.8 0.8
+v 12.8 -23.2 0.8
+v 11.2 -23.2 0.8
+f 121 122 123 124
+f 125 128 127 126
+f 121 125 126 122
+f 122 126 127 123
+f 123 127 128 124
+f 125 121 124 128
+
+# DashboardSvc
+# name:"Service: dashboard"
+# subgraph:Application Workloads
+v 11.2 -27.8 -0.8
+v 12.8 -27.8 -0.8
+v 12.8 -26.2 -0.8
+v 11.2 -26.2 -0.8
+v 11.2 -27.8 0.8
+v 12.8 -27.8 0.8
+v 12.8 -26.2 0.8
+v 11.2 -26.2 0.8
+f 129 130 131 132
+f 133 136 135 134
+f 129 133 134 130
+f 130 134 135 131
+f 131 135 136 132
+f 133 129 132 136
+
+# LogCollectorDep
+# name:"Deployment: log-collector\n(Python/Flask
+# subgraph:Application Workloads
+v 11.2 -30.8 -0.8
+v 12.8 -30.8 -0.8
+v 12.8 -29.2 -0.8
+v 11.2 -29.2 -0.8
+v 11.2 -30.8 0.8
+v 12.8 -30.8 0.8
+v 12.8 -29.2 0.8
+v 11.2 -29.2 0.8
+f 137 138 139 140
+f 141 144 143 142
+f 137 141 142 138
+f 138 142 143 139
+f 139 143 144 140
+f 141 137 140 144
+
+# LogCollectorSvc
+# name:"Service: log-collector"
+# subgraph:Application Workloads
+v 11.2 -33.8 -0.8
+v 12.8 -33.8 -0.8
+v 12.8 -32.2 -0.8
+v 11.2 -32.2 -0.8
+v 11.2 -33.8 0.8
+v 12.8 -33.8 0.8
+v 12.8 -32.2 0.8
+v 11.2 -32.2 0.8
+f 145 146 147 148
+f 149 152 151 150
+f 145 149 150 146
+f 146 150 151 147
+f 147 151 152 148
+f 149 145 148 152
+
+# ThreeRendererDep
+# name:"Deployment: three-renderer\n(Node/Express
+# subgraph:Application Workloads
+v 11.2 -36.8 -0.8
+v 12.8 -36.8 -0.8
+v 12.8 -35.2 -0.8
+v 11.2 -35.2 -0.8
+v 11.2 -36.8 0.8
+v 12.8 -36.8 0.8
+v 12.8 -35.2 0.8
+v 11.2 -35.2 0.8
+f 153 154 155 156
+f 157 160 159 158
+f 153 157 158 154
+f 154 158 159 155
+f 155 159 160 156
+f 157 153 156 160
+
+# ThreeRendererSvc
+# name:"Service: three-renderer"
+# subgraph:Application Workloads
+v 11.2 -39.8 -0.8
+v 12.8 -39.8 -0.8
+v 12.8 -38.2 -0.8
+v 11.2 -38.2 -0.8
+v 11.2 -39.8 0.8
+v 12.8 -39.8 0.8
+v 12.8 -38.2 0.8
+v 11.2 -38.2 0.8
+f 161 162 163 164
+f 165 168 167 166
+f 161 165 166 162
+f 162 166 167 163
+f 163 167 168 164
+f 165 161 164 168
+
+# PrometheusDep
+# name:"Prometheus\n(Deployment/Service
+# subgraph:Observability
+v 15.2 -0.8 -0.8
+v 16.8 -0.8 -0.8
+v 16.8 0.8 -0.8
+v 15.2 0.8 -0.8
+v 15.2 -0.8 0.8
+v 16.8 -0.8 0.8
+v 16.8 0.8 0.8
+v 15.2 0.8 0.8
+f 169 170 171 172
+f 173 176 175 174
+f 169 173 174 170
+f 170 174 175 171
+f 171 175 176 172
+f 173 169 172 176
+
+# GrafanaDep
+# name:"Grafana\n(Deployment/Service
+# subgraph:Observability
+v 15.2 -3.8 -0.8
+v 16.8 -3.8 -0.8
+v 16.8 -2.2 -0.8
+v 15.2 -2.2 -0.8
+v 15.2 -3.8 0.8
+v 16.8 -3.8 0.8
+v 16.8 -2.2 0.8
+v 15.2 -2.2 0.8
+f 177 178 179 180
+f 181 184 183 182
+f 177 181 182 178
+f 178 182 183 179
+f 179 183 184 180
+f 181 177 180 184
+
+# LokiDep
+# name:"Loki\n(Deployment/Service
+# subgraph:Observability
+v 15.2 -6.8 -0.8
+v 16.8 -6.8 -0.8
+v 16.8 -5.2 -0.8
+v 15.2 -5.2 -0.8
+v 15.2 -6.8 0.8
+v 16.8 -6.8 0.8
+v 16.8 -5.2 0.8
+v 15.2 -5.2 0.8
+f 185 186 187 188
+f 189 192 191 190
+f 185 189 190 186
+f 186 190 191 187
+f 187 191 192 188
+f 189 185 188 192
+
+# PromtailDS
+# name:"Promtail\n(DaemonSet
+# subgraph:Observability
+v 15.2 -9.8 -0.8
+v 16.8 -9.8 -0.8
+v 16.8 -8.2 -0.8
+v 15.2 -8.2 -0.8
+v 15.2 -9.8 0.8
+v 16.8 -9.8 0.8
+v 16.8 -8.2 0.8
+v 15.2 -8.2 0.8
+f 193 194 195 196
+f 197 200 199 198
+f 193 197 198 194
+f 194 198 199 195
+f 195 199 200 196
+f 197 193 196 200
+
+# SQLite
+# name:"SQLite (local files
+# subgraph:Data & Messaging
+v 19.2 -0.8 -0.8
+v 20.8 -0.8 -0.8
+v 20.8 0.8 -0.8
+v 19.2 0.8 -0.8
+v 19.2 -0.8 0.8
+v 20.8 -0.8 0.8
+v 20.8 0.8 0.8
+v 19.2 0.8 0.8
+f 201 202 203 204
+f 205 208 207 206
+f 201 205 206 202
+f 202 206 207 203
+f 203 207 208 204
+f 205 201 204 208
+
+# OtherDBs
+# name:"External DBs (none detected
+# subgraph:Data & Messaging
+v 19.2 -3.8 -0.8
+v 20.8 -3.8 -0.8
+v 20.8 -2.2 -0.8
+v 19.2 -2.2 -0.8
+v 19.2 -3.8 0.8
+v 20.8 -3.8 0.8
+v 20.8 -2.2 0.8
+v 19.2 -2.2 0.8
+f 209 210 211 212
+f 213 216 215 214
+f 209 213 214 210
+f 210 214 215 211
+f 211 215 216 212
+f 213 209 212 216
+
+# MQ
+# name:"Message Queue (none detected
+# subgraph:Data & Messaging
+v 19.2 -6.8 -0.8
+v 20.8 -6.8 -0.8
+v 20.8 -5.2 -0.8
+v 19.2 -5.2 -0.8
+v 19.2 -6.8 0.8
+v 20.8 -6.8 0.8
+v 20.8 -5.2 0.8
+v 19.2 -5.2 0.8
+f 217 218 219 220
+f 221 224 223 222
+f 217 221 222 218
+f 218 222 223 219
+f 219 223 224 220
+f 221 217 220 224
+

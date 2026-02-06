@@ -1,5 +1,13 @@
 from django.shortcuts import render
 from django.http import Http404, JsonResponse
+from django.http import HttpResponse
+
+# Try to use prometheus_client to expose metrics; if not available, return 404
+try:
+    from prometheus_client import generate_latest, CollectorRegistry, Gauge
+    PROM_AVAILABLE = True
+except Exception:
+    PROM_AVAILABLE = False
 
 # simple in-memory page index
 PAGES = [
@@ -29,3 +37,15 @@ def api_spec(request):
 def health(request):
     # Simple health endpoint used by docker-compose healthchecks
     return JsonResponse({'status': 'ok'})
+
+
+def metrics(request):
+    if not PROM_AVAILABLE:
+        return HttpResponse('Prometheus client not installed', status=404)
+    # Use a fresh registry so we only expose manually collected metrics for the helpsite
+    registry = CollectorRegistry()
+    # Example gauge: exporter up
+    g = Gauge('helpsite_up', 'Helpsite up (1 = up)', registry=registry)
+    g.set(1)
+    output = generate_latest(registry)
+    return HttpResponse(output, content_type='text/plain; version=0.0.4')

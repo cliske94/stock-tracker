@@ -18,6 +18,22 @@ data:
         metrics_path: /metrics
         static_configs:
           - targets: ['python-watchlist-gui:9110', 'cpp-stock-ui:9110']
+      - job_name: 'backend'
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['spring_app:8080']
+      - job_name: 'helpsite'
+        metrics_path: /metrics
+        static_configs:
+          - targets: ['helpsite:8001']
+      - job_name: 'log-collector'
+        metrics_path: /metrics
+        static_configs:
+          - targets: ['log-collector:5000']
+      - job_name: 'k8s_ui'
+        metrics_path: /metrics
+        static_configs:
+          - targets: ['k8s_ui:8088', 'angular_ui:4200']
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -46,10 +62,28 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /etc/prometheus
+            - name: app-logs
+              mountPath: /var/log/prometheus
+        - name: log-sidecar
+          image: local/log-sidecar:latest
+          env:
+            - name: APP_NAME
+              value: "prometheus"
+            - name: LOG_PATH
+              value: "/var/log/prometheus/prometheus.log"
+            - name: COLLECTOR_URL
+              value: "http://log-collector.default.svc.cluster.local:5000/ingest"
+            - name: REPORT_INTERVAL
+              value: "60"
+          volumeMounts:
+            - name: app-logs
+              mountPath: /var/log/prometheus
       volumes:
         - name: config
           configMap:
             name: prometheus-config
+        - name: app-logs
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
