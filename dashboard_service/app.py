@@ -13,7 +13,7 @@ try:
 except Exception:
     HAS_PROM = False
 
-DB_PATH = os.environ.get('DASH_DB', '/data/metrics.db')
+DB_PATH = os.environ.get('DASH_DB', './data/metrics.db')
 
 app = Flask(__name__)
 
@@ -309,5 +309,11 @@ def metrics_endpoint():
         return Response('', mimetype='text/plain; version=0.0.4; charset=utf-8')
 
 if __name__ == '__main__':
-    init_db()
-    app.run(host='0.0.0.0', port=8085)
+    # Ensure DB initialization runs inside the Flask application context
+    try:
+        with app.app_context():
+            init_db()
+    except Exception:
+        pass
+    port = int(os.environ.get('DASH_PORT', '8085'))
+    app.run(host='0.0.0.0', port=port)

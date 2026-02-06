@@ -104,5 +104,9 @@ RUN pip install --no-cache-dir -r /app/requirements.txt gunicorn
 COPY ./django_help /app
 
 EXPOSE 8001
-# Use Gunicorn to serve the Django WSGI app in production
-CMD ["sh","-c","python manage.py migrate --noinput && exec gunicorn --bind 0.0.0.0:8001 helpsite.wsgi:application --workers 3 --log-level info"]
+# Ensure a writable log directory and collect static files before starting Gunicorn.
+# The image runs these commands at container start so the image remains immutable
+# but the runtime still performs any necessary finalization (migrations, static collect).
+CMD ["sh","-c","python manage.py migrate --noinput && python manage.py collectstatic --noinput && mkdir -p /var/log/helpsite && chmod 0775 /var/log/helpsite || true && exec gunicorn --bind 0.0.0.0:8001 helpsite.wsgi:application --workers 3 --log-level info"]
+
+HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 CMD curl -f http://127.0.0.1:8001/help/health/ || exit 1
