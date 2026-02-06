@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: gui
-          image: cliske01/python-watchlist-gui:latest
+          image: cliske01/python-watchlist-gui:patched
           imagePullPolicy: IfNotPresent
           resources:
             requests:
@@ -51,18 +51,135 @@ spec:
             httpGet:
               path: /internal/heartbeat
               port: 9090
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 15
             timeoutSeconds: 5
-            failureThreshold: 6
+            failureThreshold: 10
           livenessProbe:
             httpGet:
               path: /internal/heartbeat
               port: 9090
-            initialDelaySeconds: 30
-            periodSeconds: 15
+            initialDelaySeconds: 120
+            periodSeconds: 30
             timeoutSeconds: 5
-            failureThreshold: 6
+            failureThreshold: 12
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # run via the shell so the ConfigMap-mounted file doesn't need exec bit
+              exec /bin/sh /app/start.sh
+          volumeMounts:
+            - name: gui-scripts
+              mountPath: /app/start.sh
+              subPath: start.sh
+              readOnly: true
+            - name: gui-scripts
+              mountPath: /app/healthcheck.py
+              subPath: healthcheck.py
+              readOnly: true
+        - name: metrics-sidecar
+          image: curlimages/curl:8.2.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DASHBOARD_URL
+              value: "http://dashboard:8085"
+            - name: METRIC_SERVICE
+              value: "python_watchlist_gui"
+            - name: METRIC_INTERVAL
+              value: "60"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              DASH=${DASHBOARD_URL:-http://dashboard:8085}
+              SERVICE=${METRIC_SERVICE:-python_watchlist_gui}
+              INTERVAL=${METRIC_INTERVAL:-60}
+              while true; do
+                curl -sS -X POST "$DASH/ingest" -H 'Content-Type: application/json' \
+                  -d "{\"service\":\"$SERVICE\",\"uptime\":$(date +%s),\"requests\":0}" >/dev/null 2>&1 || true
+                sleep "$INTERVAL"
+              done
+        - name: prom-exporter
+          image: python:3.11-slim
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: EXPORTER_SERVICE
+              value: "python_watchlist_gui"
+            - name: DASHBOARD_URL
+              value: "http://dashboard:8085"
+            - name: EXPORTER_PORT
+              value: "9110"
+          ports:
+            - containerPort: 9110
+              name: exporter
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              cat > /tmp/exporter.py <<'PY'
+              import time, threading, json, os, urllib.request
+              from http.server import HTTPServer, BaseHTTPRequestHandler
+              SERVICE=os.environ.get('EXPORTER_SERVICE','python_watchlist_gui')
+              DASH=os.environ.get('DASHBOARD_URL','http://dashboard:8085')
+              PORT=int(os.environ.get('EXPORTER_PORT','9110'))
+
+              metrics_text = ''
+
+              def build_metrics():
+                global metrics_text
+                try:
+                  with urllib.request.urlopen(DASH + '/api/latest', timeout=2) as r:
+                    js = json.loads(r.read().decode())
+                except Exception:
+                  js = {}
+                val = js.get(SERVICE, {})
+                now = int(time.time())
+                up = 0
+                if val and 'ts' in val and now - int(val.get('ts',0)) <= int(os.environ.get('UP_THRESHOLD','90')):
+                  up = 1
+                lines = []
+                lines.append('# HELP exporter_up gauge')
+                lines.append('# TYPE exporter_up gauge')
+                lines.append(f'exporter_up{{service="{SERVICE}"}} {up}')
+                if val:
+                  lines.append(f'exporter_uptime_seconds{{service="{SERVICE}"}} {int(val.get("uptime",0))}')
+                  lines.append(f'exporter_requests_total{{service="{SERVICE}"}} {int(val.get("requests",0))}')
+                metrics_text = '\n'.join(lines) + '\n'
+
+              def poll_loop():
+                while True:
+                  try:
+                    build_metrics()
+                  except Exception:
+                    pass
+                  time.sleep(5)
+
+              class H(BaseHTTPRequestHandler):
+                def do_GET(self):
+                  if self.path != '/metrics':
+                    self.send_response(404); self.end_headers(); return
+                  self.send_response(200)
+                  self.send_header('Content-Type','text/plain; version=0.0.4; charset=utf-8')
+                  self.end_headers()
+                  self.wfile.write(metrics_text.encode())
+
+              t = threading.Thread(target=poll_loop, daemon=True)
+              t.start()
+              server = HTTPServer(('0.0.0.0', PORT), H)
+              server.serve_forever()
+              PY
+              python3 /tmp/exporter.py
+      volumes:
+        - name: gui-scripts
+          configMap:
+            name: python-watchlist-scripts
+            items:
+              - key: start.sh
+                path: start.sh
+              - key: healthcheck.py
+                path: healthcheck.py
 ---
 apiVersion: v1
 kind: Secret
@@ -84,3 +201,4 @@ spec:
       port: 6080
       targetPort: 6080
   type: ClusterIP
+    
