@@ -5,13 +5,12 @@ metadata:
   labels:
     app: dashboard
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: dashboard
   ports:
     - port: 8085
       targetPort: 8085
-      nodePort: 30085
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -30,7 +29,14 @@ spec:
       containers:
         - name: dashboard
           image: cliske01/dashboard:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              pip install --no-cache-dir prometheus_client || true
+              exec gunicorn -b 0.0.0.0:8085 app:app
           ports:
             - containerPort: 8085
           volumeMounts:
@@ -38,4 +44,5 @@ spec:
               mountPath: /data
       volumes:
         - name: data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: dashboard-pvc

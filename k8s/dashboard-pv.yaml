@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dashboard-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /home/cody/Projects/dashboard_data
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain

@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-post-metric-cpp
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: post
+              image: curlimages/curl:8.2.1
+              command: ["/bin/sh","-c"]
+              args:
+                - |
+                  curl -sS -X POST "http://dashboard:8085/ingest" -H 'Content-Type: application/json' \
+                    -d "{\"service\":\"cpp_stock_ui\",\"uptime\":$(date +%s),\"requests\":0}" || true

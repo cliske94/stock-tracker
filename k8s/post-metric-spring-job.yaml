@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: post-metric-spring-once
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: post
+          image: curlimages/curl:8.2.1
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              curl -sS -X POST "http://dashboard:8085/ingest" -H 'Content-Type: application/json' \
+                -d "{\"service\":\"spring_hello_world\",\"uptime\":$(date +%s),\"requests\":0}" || true

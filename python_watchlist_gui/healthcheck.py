@@ -2,17 +2,20 @@
 import os
 import json
 import time
+import socket
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib import request
 
 HEARTBEAT_FILE = '/tmp/python_heartbeat'
 BACKEND_URL = os.environ.get('BACKEND_URL', 'http://localhost:8080')
 
+
 def now_ms():
     return int(time.time() * 1000)
 
+
 class Handler(BaseHTTPRequestHandler):
-    def _write(self, obj, code=200):
+    def _write_json(self, obj, code=200):
         data = json.dumps(obj).encode('utf-8')
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
@@ -21,6 +24,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self):
+        # Lightweight internal heartbeat used by k8s readiness probe
         if self.path == '/internal/heartbeat':
             ts = None
             try:
@@ -28,8 +32,10 @@ class Handler(BaseHTTPRequestHandler):
                     ts = int(f.read().strip())
             except Exception:
                 ts = None
-            self._write({'last_heartbeat_ms': ts})
+            self._write_json({'last_heartbeat_ms': ts})
             return
+
+        # Rich backend health check that exercises backend API endpoints
         if self.path == '/internal/healthcheck':
             ok = True
             details = {}
@@ -76,58 +82,41 @@ class Handler(BaseHTTPRequestHandler):
                             pass
                     except Exception as e:
                         details['crud_error'] = str(e)
-            self._write({'ok': ok, 'details': details}, code=(200 if ok else 503))
+            self._write_json({'ok': ok, 'details': details}, code=(200 if ok else 503))
             return
+
+        # Simple VNC-based health endpoint used by the container monitor
+        if self.path == '/health':
+            ok = False
+            try:
+                s = socket.socket()
+                s.settimeout(2)
+                s.connect(('127.0.0.1', 5901))
+                data = s.recv(12)
+                s.close()
+                if data and data.startswith(b'RFB'):
+                    ok = True
+            except Exception:
+                ok = False
+
+            if ok:
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"OK")
+            else:
+                self.send_response(503)
+                self.end_headers()
+                self.wfile.write(b"UNHEALTHY")
+            return
+
         self.send_response(404)
         self.end_headers()
+
 
 def run(port=9090):
     server = HTTPServer(('0.0.0.0', port), Handler)
     server.serve_forever()
 
+
 if __name__ == '__main__':
     run()
-#!/usr/bin/env python3
-import http.server
-import socketserver
-import socket
-import sys
-
-PORT = 9090
-
-class Handler(http.server.BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path != "/health":
-            self.send_response(404)
-            self.end_headers()
-            return
-        ok = False
-        try:
-            s = socket.socket()
-            s.settimeout(2)
-            s.connect(('127.0.0.1', 5901))
-            # read VNC banner
-            data = s.recv(12)
-            s.close()
-            if data and data.startswith(b'RFB'):
-                ok = True
-        except Exception:
-            ok = False
-
-        if ok:
-            self.send_response(200)
-            self.end_headers()
-            self.wfile.write(b"OK")
-        else:
-            self.send_response(503)
-            self.end_headers()
-            self.wfile.write(b"UNHEALTHY")
-
-    def log_message(self, format, *args):
-        # keep logs minimal
-        sys.stdout.write("health: %s %s\n" % (self.address_string(), format%args))
-
-if __name__ == '__main__':
-    with socketserver.TCPServer(('0.0.0.0', PORT), Handler) as httpd:
-        print(f"healthcheck listening on {PORT}")
-        httpd.serve_forever()

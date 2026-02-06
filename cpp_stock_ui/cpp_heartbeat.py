@@ -27,6 +27,15 @@ def send_hb():
         request.urlopen(req, timeout=5)
     except Exception:
         pass
+    # Optional: forward metrics to dashboard if DASHBOARD_URL is set
+    try:
+        dash = os.environ.get('DASHBOARD_URL')
+        if dash:
+            metric = json.dumps({'service':'cpp_stock_ui','uptime':int(ts/1000),'requests':0}).encode('utf-8')
+            req2 = request.Request(dash.rstrip('/') + '/ingest', data=metric, headers={'Content-Type':'application/json'})
+            request.urlopen(req2, timeout=3)
+    except Exception:
+        pass
     write_ts()
 
 def main():

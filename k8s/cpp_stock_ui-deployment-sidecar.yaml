@@ -30,6 +30,8 @@ spec:
               value: "http://spring_app:8080"
             - name: BACKEND_HEARTBEAT_URL
               value: "http://spring_app:8080/heartbeat"
+            - name: DASHBOARD_URL
+              value: "http://dashboard:8085"
           readinessProbe:
             httpGet:
               path: /internal/heartbeat

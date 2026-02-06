@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  labels:
+    app: grafana
+data:
+  # simple dashboard showing the six starter metrics
+  dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "uid": "service-metrics",
+        "title": "Service Metrics",
+        "panels": [
+          {
+            "type": "stat",
+            "title": "Services Up",
+            "gridPos": {"x":0,"y":0,"w":6,"h":4},
+            "targets": [{"expr":"dashboard_services_up","refId":"A"}]
+          },
+          {
+            "type": "graph",
+            "title": "Metric Points",
+            "gridPos": {"x":6,"y":0,"w":12,"h":6},
+            "targets": [{"expr":"dashboard_metric_points_total","refId":"A"}]
+          },
+          {
+            "type": "table",
+            "title": "Per-Service Latest",
+            "gridPos": {"x":0,"y":4,"w":18,"h":6},
+            "targets": [
+              {"expr":"dashboard_service_uptime_seconds","refId":"A"},
+              {"expr":"dashboard_service_requests","refId":"B"}
+            ]
+          }
+        ],
+        "schemaVersion": 30,
+        "version": 1
+      },
+      "overwrite": true

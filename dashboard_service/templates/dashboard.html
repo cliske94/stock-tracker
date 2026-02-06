@@ -12,12 +12,19 @@
       <label for="svc">Service:</label>
       <select id="svc"></select>
       <button id="refresh">Refresh</button>
+      <span id="any-status" style="margin-left:12px;font-weight:600;color:gray">Any service up: unknown</span>
     </div>
     <canvas id="chart" width="800" height="300"></canvas>
     <script>
       async function loadServices(){
-        const res = await fetch('/api/services');
-        return res.json();
+        try{
+          const res = await fetch('/api/services');
+          if(!res.ok) return [];
+          return await res.json();
+        }catch(e){
+          console.error('loadServices error', e);
+          return [];
+        }
       }
       async function loadSeries(svc){
         const res = await fetch('/api/series?service='+encodeURIComponent(svc));
@@ -45,11 +52,72 @@
 
       document.getElementById('refresh').addEventListener('click', render);
 
-      (async ()=>{
+      async function updateAnyStatus(){
+        try{
+          const res = await fetch('/api/latest');
+          if(!res.ok) return;
+          const data = await res.json();
+          const now = Math.floor(Date.now()/1000);
+          const thresh = 90; // seconds — consider service up if last seen within this window
+          let anyUp = false;
+          Object.keys(data).forEach(k=>{ const ts = data[k] && data[k].ts ? data[k].ts : 0; if(now - ts <= thresh) anyUp = true; });
+          const el = document.getElementById('any-status');
+          el.textContent = anyUp ? 'Any service up: Yes' : 'Any service up: No';
+          el.style.color = anyUp ? 'green' : 'red';
+        }catch(e){ console.error('updateAnyStatus error', e); }
+      }
+
+      async function populateServices(){
         const svcs = await loadServices();
         const sel = document.getElementById('svc');
+        sel.innerHTML = '';
         svcs.forEach(s=>{const o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o)});
         if(svcs.length) { sel.value=svcs[0]; await render(); }
+      }
+
+      // initial populate and periodic refresh so dropdown reflects recent ingests
+      (async ()=>{
+        await populateServices();
+        await updateAnyStatus();
+        setInterval(()=>{ populateServices(); updateAnyStatus(); }, 15000);
+        // fallback short-poll to detect ingests even if SSE is unavailable
+        let _lastLatest = null;
+        async function pollLatest(){
+          try{
+            const res = await fetch('/api/latest');
+            if(!res.ok) return;
+            const data = await res.json();
+            const asStr = JSON.stringify(data);
+            if(_lastLatest && _lastLatest !== asStr){
+              // change detected
+              populateServices();
+              updateAnyStatus();
+              const sel = document.getElementById('svc'); if(sel && sel.value) render();
+            }
+            _lastLatest = asStr;
+          }catch(e){/*ignore*/}
+        }
+        setInterval(pollLatest, 3000);
+        // listen for server-sent events and refresh immediately on ingest
+        function setupSSE(){
+          try{
+            const es = new EventSource('/events');
+            es.onmessage = function(e){
+              try{ const msg = JSON.parse(e.data); console.log('sse',msg); }catch(err){}
+              // refresh small parts instead of full reload
+              populateServices();
+              updateAnyStatus();
+              const sel = document.getElementById('svc');
+              if(sel && sel.value) render();
+            };
+            es.onerror = function(){
+              // attempt reconnect by recreating EventSource after a short delay
+              es.close();
+              setTimeout(setupSSE, 3000);
+            };
+          }catch(err){ console.warn('SSE not supported', err); }
+        }
+        setupSSE();
       })();
     </script>
   </body>

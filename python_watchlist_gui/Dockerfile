@@ -14,7 +14,8 @@ RUN apt-get update \
          xvfb \
          x11vnc \
          fluxbox \
-         x11-utils \
+        x11-utils \
+        procps \
      && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies early so container starts fast at runtime
@@ -24,9 +25,11 @@ RUN pip install --no-cache-dir -r /app/requirements.txt websockify
 # Copy application and start script
 COPY . /app
 COPY start.sh /app/start.sh
+COPY healthcheck.py /app/healthcheck.py
 RUN git clone --depth 1 https://github.com/novnc/noVNC.git /opt/novnc || true
 RUN chmod -R a+rX /opt/novnc || true
 RUN chmod +x /app/start.sh
+RUN chmod +x /app/healthcheck.py || true
 
 # Create a default VNC password file at build time so x11vnc can use it
 # Do NOT create a VNC password at build time; the runtime container will
